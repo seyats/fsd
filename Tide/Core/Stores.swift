@@ -316,10 +316,16 @@ final class SocialStore {
     }
 
     private static func tokens(in text: String, prefix: Character) -> [String] {
-        text.split(whereSeparator: { $0.isWhitespace })
-            .map(String.init)
-            .filter { $0.first == prefix && $0.count > 1 }
-            .map { String($0.dropFirst()).trimmingCharacters(in: .punctuationCharacters) }
+        var result: [String] = []
+        for part in text.split(whereSeparator: { $0.isWhitespace }) {
+            let token = String(part)
+            guard token.first == prefix, token.count > 1 else { continue }
+            let normalized = String(token.dropFirst()).trimmingCharacters(in: .punctuationCharacters)
+            if !normalized.isEmpty {
+                result.append(normalized)
+            }
+        }
+        return result
     }
 }
 
