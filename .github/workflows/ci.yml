@@ -34,3 +34,33 @@ jobs:
           path: build/TideTests.xcresult
           if-no-files-found: ignore
           retention-days: 14
+
+  build-ipa:
+    runs-on: macos-26
+    timeout-minutes: 45
+    if: (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main') && secrets.APPLE_TEAM_ID != '' && secrets.IOS_CERT_BASE64 != '' && secrets.IOS_CERT_PASSWORD != '' && secrets.IOS_PROFILE_BASE64 != ''
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select latest stable Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate
+      - name: Build IPA
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          IOS_CERT_BASE64: ${{ secrets.IOS_CERT_BASE64 }}
+          IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+          IOS_PROFILE_BASE64: ${{ secrets.IOS_PROFILE_BASE64 }}
+        run: bash Tools/ci-ipa.sh
+      - name: Upload IPA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tide.ipa
+          path: build/Tide.ipa
+          if-no-files-found: ignore
+          retention-days: 14
