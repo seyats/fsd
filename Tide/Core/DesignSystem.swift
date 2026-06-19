@@ -20,11 +20,6 @@ enum TideTypography {
     static let headline = Font.system(size: 17, weight: .semibold, design: .rounded)
     static let body = Font.system(size: 16, weight: .regular, design: .rounded)
     static let metadata = Font.system(size: 12, weight: .medium, design: .rounded)
-    
-    // Days One - для брендинга и заголовков
-    static let brandLarge = Font.custom("Days One", size: 48)
-    static let brandMedium = Font.custom("Days One", size: 32)
-    static let brandSmall = Font.custom("Days One", size: 24)
 }
 
 enum TideSpacing {

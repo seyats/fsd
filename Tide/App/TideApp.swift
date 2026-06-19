@@ -2,7 +2,6 @@ import Combine
 import SwiftData
 import SwiftUI
 import UIKit
-import CoreText
 
 @main
 @MainActor
@@ -20,14 +19,6 @@ struct TideApp: App {
         UINavigationBar.appearance().standardAppearance = navigationAppearance
         let database = LocalDatabase()
         _dependencies = State(initialValue: AppDependencies(database: database))
-        
-        // Register custom fonts
-        if let fontURL = Bundle.main.url(forResource: "DaysOne-Regular", withExtension: "ttf") {
-            var error: Unmanaged<CFError>?
-            if !CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, &error) {
-                print("Failed to register font: \(error?.takeRetainedValue() as? Error)")
-            }
-        }
     }
 
     var body: some Scene {

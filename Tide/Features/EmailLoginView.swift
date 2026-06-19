@@ -93,7 +93,7 @@ private struct HeaderSection: View {
             
             VStack(alignment: .leading, spacing: 8) {
                 Text("Welcome back")
-                    .font(TideTypography.brandMedium)
+                    .font(TideTypography.display)
                     .foregroundColor(.white)
                 
                 Text("Sign in to continue")
