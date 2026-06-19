@@ -37,7 +37,7 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Import signing identity
-        if: ${{ secrets.APPLE_TEAM_ID != '' && secrets.APP_BUNDLE_ID != '' && secrets.P12_PASSWORD != '' && secrets.KEYCHAIN_PASSWORD != '' && secrets.BUILD_CERTIFICATE_BASE64 != '' && secrets.BUILD_PROVISION_PROFILE_BASE64 != '' }}
+        if: ${{ env.DEVELOPMENT_TEAM != '' && env.PRODUCT_BUNDLE_IDENTIFIER != '' && env.P12_PASSWORD != '' && env.KEYCHAIN_PASSWORD != '' && env.BUILD_CERTIFICATE_BASE64 != '' && env.BUILD_PROVISION_PROFILE_BASE64 != '' }}
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
