@@ -23,7 +23,10 @@ struct TideApp: App {
         
         // Register custom fonts
         if let fontURL = Bundle.main.url(forResource: "DaysOne-Regular", withExtension: "ttf") {
-            CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, nil)
+            var error: Unmanaged<CFError>?
+            if !CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, &error) {
+                print("Failed to register font: \(error?.takeRetainedValue() as? Error)")
+            }
         }
     }
 
