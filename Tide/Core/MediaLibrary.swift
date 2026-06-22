@@ -130,19 +130,24 @@ actor MediaLibrary {
             includingPropertiesForKeys: [.creationDateKey, .fileSizeKey],
             options: [.skipsHiddenFiles]
         )) ?? []
-        let files = urls
-            .filter { !$0.hasDirectoryPath }
-            .map { url in
-                let values = try? url.resourceValues(forKeys: [.creationDateKey, .fileSizeKey])
-                return MediaStoredFile(
-                    id: url,
-                    url: url,
-                    name: url.lastPathComponent,
-                    category: Self.storageCategory(for: url),
-                    byteCount: Int64(values?.fileSize ?? fileSize(url)),
-                    createdAt: values?.creationDate ?? .distantPast
-                )
+        var files: [MediaStoredFile] = []
+        for url in urls where !url.hasDirectoryPath {
+            let values = try? url.resourceValues(forKeys: [.creationDateKey, .fileSizeKey])
+            let byteCount: Int64
+            if let fileSize = values?.fileSize {
+                byteCount = Int64(fileSize)
+            } else {
+                byteCount = self.fileSize(url)
             }
+            files.append(MediaStoredFile(
+                id: url,
+                url: url,
+                name: url.lastPathComponent,
+                category: Self.storageCategory(for: url),
+                byteCount: byteCount,
+                createdAt: values?.creationDate ?? .distantPast
+            ))
+        }
         return MediaStorageSnapshot(files: files.sorted { $0.createdAt > $1.createdAt })
     }
 
