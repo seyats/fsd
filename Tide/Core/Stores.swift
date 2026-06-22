@@ -523,7 +523,7 @@ final class SocialStore {
 
     init(database: LocalDatabase) {
         self.database = database
-        posts = []
+        posts = database.posts()
         stories = database.stories()
     }
 
@@ -534,12 +534,22 @@ final class SocialStore {
     }
 
     var filteredPosts: [Post] {
-        []
+        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return posts
+        }
+        let needle = query.lowercased()
+        return posts.filter { post in
+            post.body.lowercased().contains(needle)
+                || post.author.name.lowercased().contains(needle)
+                || post.author.username.lowercased().contains(needle)
+                || post.hashtags.contains { $0.lowercased().contains(needle) }
+                || post.mentions.contains { $0.lowercased().contains(needle) }
+        }
     }
 
     func reload() {
         guard let database else { return }
-        posts = []
+        posts = database.posts()
         stories = database.stories()
         errorMessage = database.lastError
     }
@@ -552,7 +562,30 @@ final class SocialStore {
     }
 
     func createPost(body: String, visibility: PostVisibility, author: User, media: [MediaAttachment] = [], location: String? = nil) {
-        errorMessage = "Посты скрыты в этой версии Tide."
+        let cleanBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanBody.isEmpty else { return }
+        let post = Post(
+            id: UUID(),
+            author: author,
+            body: cleanBody,
+            createdAt: .now,
+            media: [],
+            likeCount: 0,
+            repostCount: 0,
+            commentCount: 0,
+            viewCount: 0,
+            isLiked: false,
+            isSaved: false,
+            visibility: visibility,
+            location: location,
+            moderationState: .visible,
+            editedAt: nil,
+            hashtags: Self.tokens(in: cleanBody, prefix: "#"),
+            mentions: Self.tokens(in: cleanBody, prefix: "@")
+        )
+        posts.insert(post, at: 0)
+        database?.createPost(post)
+        errorMessage = database?.lastError
     }
 
     func editPost(_ id: UUID, body: String) {

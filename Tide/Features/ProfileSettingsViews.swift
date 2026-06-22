@@ -22,10 +22,10 @@ struct EditProfileView: View {
     var body: some View {
         ZStack {
             TideBackdropView(configuration: dependencies.preferences.backdropConfiguration())
-            Color.black.opacity(0.62).ignoresSafeArea()
+            Color.black.opacity(0.42).ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 18) {
+                VStack(spacing: 16) {
                     topBar
                     avatarEditor
                     identityCard
@@ -33,7 +33,7 @@ struct EditProfileView: View {
                     accountCard
                     if let footnote = authInfo.providerFootnote {
                         Text(footnote)
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .font(.system(size: 13, weight: .regular))
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 28)
@@ -75,13 +75,13 @@ struct EditProfileView: View {
             .buttonStyle(.plain)
 
             Text("Профиль")
-                .font(.system(size: 24, weight: .black, design: .rounded))
+                .font(.system(size: 24, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Button(action: saveProfile) {
                 Text("Сохранить")
-                    .font(.system(size: 16, weight: .black, design: .rounded))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(canSave ? .white : .secondary)
                     .padding(.horizontal, 18)
                     .frame(height: 44)
@@ -120,11 +120,11 @@ struct EditProfileView: View {
                 HStack(spacing: 10) {
                     Text("Редактировать")
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 18, weight: .black))
+                        .font(.system(size: 18, weight: .semibold))
                 }
-                .font(.system(size: 16, weight: .black, design: .rounded))
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.white)
-                .padding(.horizontal, 18)
+                .padding(.horizontal, 16)
                 .frame(height: 38)
                 .background(AuthGlassBackground(cornerRadius: 19, interactive: true))
             }
@@ -146,7 +146,7 @@ struct EditProfileView: View {
         .overlay(alignment: .bottomLeading) {
             if let validationMessage {
                 Text(validationMessage)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.red)
                     .offset(x: 28, y: 20)
             }
@@ -183,9 +183,9 @@ struct EditProfileView: View {
             }
         }
         .animation(.easeInOut(duration: 0.35), value: hasBirthday)
-        .font(.system(size: 17, weight: .bold, design: .rounded))
+        .font(.system(size: 16, weight: .semibold))
         .foregroundStyle(.white)
-        .padding(16)
+        .padding(14)
         .background(AuthGlassBackground(cornerRadius: 22, interactive: false))
         .padding(.horizontal, 16)
     }
@@ -202,7 +202,7 @@ struct EditProfileView: View {
                     .lineLimit(2)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.vertical, 12)
 
             divider
 
@@ -217,11 +217,11 @@ struct EditProfileView: View {
                 }
                 .foregroundStyle(.white)
                 .padding(.horizontal, 16)
-                .padding(.vertical, 14)
+                .padding(.vertical, 12)
             }
             .buttonStyle(.plain)
         }
-        .font(.system(size: 17, weight: .bold, design: .rounded))
+        .font(.system(size: 16, weight: .regular))
         .background(AuthGlassBackground(cornerRadius: 22, interactive: false))
         .padding(.horizontal, 16)
     }
@@ -254,7 +254,7 @@ struct EditProfileView: View {
         TextField(placeholder, text: text)
             .focused($focusedField, equals: field)
             .textInputAutocapitalization(.words)
-            .font(.system(size: 17, weight: .bold, design: .rounded))
+            .font(.system(size: 17, weight: .regular))
             .foregroundStyle(.white)
             .padding(.horizontal, 16)
             .frame(height: 52)
@@ -392,7 +392,7 @@ struct SettingsView: View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 18) {
                 Text("Настройки")
-                    .font(.system(size: 28, weight: .black, design: .rounded))
+                    .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 16)
                     .padding(.top, 10)
@@ -435,7 +435,7 @@ struct SettingsView: View {
         }
         .background {
             TideBackdropView(configuration: dependencies.preferences.backdropConfiguration())
-            Color.black.opacity(0.66).ignoresSafeArea()
+            Color.black.opacity(0.42).ignoresSafeArea()
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
@@ -470,32 +470,32 @@ struct AppearanceView: View {
 
                 VStack(alignment: .leading, spacing: 18) {
                     Text("Размер текста")
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.secondary)
 
                     VStack(spacing: 22) {
                         HStack {
                             Text("A")
-                                .font(.system(size: 17, weight: .black, design: .rounded))
+                                .font(.system(size: 17, weight: .semibold))
                             Slider(value: $textScale, in: 0...1)
                                 .tint(.white)
                             Text("A")
-                                .font(.system(size: 26, weight: .black, design: .rounded))
+                                .font(.system(size: 24, weight: .semibold))
                         }
                         .foregroundStyle(.secondary)
 
                         VStack(spacing: 16) {
                             Text("Расскажи мне о Вселенной.")
-                                .font(.system(size: CGFloat(19 + textScale * 6), weight: .bold, design: .rounded))
+                                .font(.system(size: CGFloat(17 + textScale * 4), weight: .semibold))
                                 .padding(.horizontal, 18)
                                 .frame(height: 52)
                                 .background(.white.opacity(0.08), in: Capsule())
                             Text("Вселенная — это всё, что существует: пространство, время, материя, энергия и законы, по которым всё работает.")
-                                .font(.system(size: CGFloat(18 + textScale * 6), weight: .semibold, design: .rounded))
+                                .font(.system(size: CGFloat(16 + textScale * 4), weight: .regular))
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             Text("Предпросмотр")
-                                .font(.system(size: 18, weight: .black, design: .rounded))
+                                .font(.system(size: 16, weight: .semibold))
                                 .foregroundStyle(.secondary)
                                 .padding(.horizontal, 26)
                                 .frame(height: 44)
@@ -532,7 +532,7 @@ struct AppearanceView: View {
                             Slider(value: $preferences.galleryBackdropOpacity, in: 0.2...1)
                                 .tint(.white)
                         }
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
@@ -551,7 +551,7 @@ struct AppearanceView: View {
         }
         .background {
             TideBackdropView(configuration: dependencies.preferences.backdropConfiguration())
-            Color.black.opacity(0.66).ignoresSafeArea()
+            Color.black.opacity(0.42).ignoresSafeArea()
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
@@ -576,9 +576,9 @@ struct AppearanceView: View {
         } label: {
             VStack(spacing: 10) {
                 Image(systemName: symbol)
-                    .font(.system(size: 26, weight: .black))
+                    .font(.system(size: 24, weight: .semibold))
                 Text(title)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.system(size: 15, weight: .semibold))
             }
             .foregroundStyle(selected ? .white : .secondary)
             .frame(maxWidth: .infinity)
@@ -644,13 +644,13 @@ struct StorageView: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 18) {
                 GlassScreenHeader(title: "Хранилище")
 
                 Text("Использование кэша")
-                    .font(.system(size: 21, weight: .black, design: .rounded))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 40)
+                    .padding(.horizontal, 32)
 
                 VStack(spacing: 0) {
                     storageRow("Видео Tide", bytes: snapshot.videoBytes)
@@ -661,34 +661,34 @@ struct StorageView: View {
                     divider
                     storageRow("Файлы", bytes: snapshot.documentBytes)
                 }
-                .padding(.vertical, 10)
-                .background(AuthGlassBackground(cornerRadius: 28, interactive: false))
-                .padding(.horizontal, 24)
+                .padding(.vertical, 6)
+                .background(AuthGlassBackground(cornerRadius: 22, interactive: false))
+                .padding(.horizontal, 16)
 
                 Text("Кэшированные медиафайлы можно повторно загрузить. Очистка освободит место, но не удалит активные аватары, обложки и вложения из базы.")
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 40)
+                    .padding(.horizontal, 32)
 
                 Button(role: .destructive) {
                     Task { await clearCache() }
                 } label: {
                     Text(isClearing ? "Очищаем..." : "Очистить кэш")
-                        .font(.system(size: 20, weight: .black, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .frame(maxWidth: .infinity)
-                        .frame(height: 60)
+                        .frame(height: 52)
                         .foregroundStyle(.red)
-                        .background(AuthGlassBackground(cornerRadius: 30, interactive: !isClearing))
+                        .background(AuthGlassBackground(cornerRadius: 22, interactive: !isClearing))
                 }
                 .buttonStyle(.plain)
                 .disabled(isClearing)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 16)
             }
             .padding(.bottom, 34)
         }
         .background {
             TideBackdropView(configuration: dependencies.preferences.backdropConfiguration())
-            Color.black.opacity(0.68).ignoresSafeArea()
+            Color.black.opacity(0.42).ignoresSafeArea()
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
@@ -703,17 +703,17 @@ struct StorageView: View {
             Text(formatBytes(bytes))
                 .foregroundStyle(.secondary)
         }
-        .font(.system(size: 22, weight: .bold, design: .rounded))
-        .padding(.horizontal, 22)
-        .frame(height: 58)
+        .font(.system(size: 17, weight: .semibold))
+        .padding(.horizontal, 16)
+        .frame(height: 52)
     }
 
     private var divider: some View {
         Rectangle()
             .fill(.white.opacity(0.10))
             .frame(height: 1)
-            .padding(.leading, 22)
-            .padding(.trailing, 18)
+            .padding(.leading, 16)
+            .padding(.trailing, 16)
     }
 
     private func loadSnapshot() async {
@@ -735,39 +735,40 @@ struct DataManagementView: View {
     @State private var snapshot = MediaStorageSnapshot(files: [])
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 34) {
+        VStack(alignment: .leading, spacing: 22) {
             GlassScreenHeader(title: "Управление данными")
 
             Button {
                 dependencies.router.push(.storageFiles)
             } label: {
-                HStack(spacing: 16) {
+                HStack(spacing: 12) {
                     Image(systemName: "cylinder.split.1x2")
-                        .font(.system(size: 25, weight: .semibold))
+                        .font(.system(size: 20, weight: .semibold))
                         .foregroundStyle(.secondary)
-                        .frame(width: 34)
+                        .frame(width: 24)
                     Text("Управление облачным хранилищем")
-                        .font(.system(size: 22, weight: .black, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                     Spacer()
                     Text(formatBytes(snapshot.totalBytes))
-                        .font(.system(size: 21, weight: .black, design: .rounded))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.secondary)
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 19, weight: .black))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(.secondary)
                 }
                 .foregroundStyle(.white)
-                .padding(22)
-                .background(AuthGlassBackground(cornerRadius: 28, interactive: true))
+                .padding(.horizontal, 16)
+                .frame(height: 64)
+                .background(AuthGlassBackground(cornerRadius: 22, interactive: true))
             }
             .buttonStyle(.plain)
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 16)
 
             Spacer()
         }
         .background {
             TideBackdropView(configuration: dependencies.preferences.backdropConfiguration())
-            Color.black.opacity(0.68).ignoresSafeArea()
+            Color.black.opacity(0.42).ignoresSafeArea()
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
@@ -788,15 +789,15 @@ struct StorageFilesView: View {
                 Spacer()
                 VStack(spacing: 2) {
                     Text(formatBytes(snapshot.totalBytes))
-                        .font(.system(size: 26, weight: .black, design: .rounded))
+                        .font(.system(size: 22, weight: .semibold))
                     Text("\(snapshot.files.count) файлов")
-                        .font(.system(size: 14, weight: .black, design: .rounded))
+                        .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
                 filterMenu
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 16)
             .padding(.top, 12)
             .padding(.bottom, 18)
 
@@ -812,7 +813,7 @@ struct StorageFilesView: View {
                             Rectangle()
                                 .fill(.white.opacity(0.08))
                                 .frame(height: 1)
-                                .padding(.leading, 126)
+                                .padding(.leading, 106)
                         }
                     }
                     .padding(.bottom, 26)
@@ -821,7 +822,7 @@ struct StorageFilesView: View {
         }
         .background {
             TideBackdropView(configuration: dependencies.preferences.backdropConfiguration())
-            Color.black.opacity(0.72).ignoresSafeArea()
+            Color.black.opacity(0.42).ignoresSafeArea()
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
@@ -857,10 +858,10 @@ struct StorageFilesView: View {
             }
         } label: {
             Image(systemName: "line.3.horizontal.decrease")
-                .font(.system(size: 25, weight: .black))
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(.white)
-                .frame(width: 58, height: 58)
-                .background(AuthGlassBackground(cornerRadius: 29, interactive: true))
+                .frame(width: 44, height: 44)
+                .background(AuthGlassBackground(cornerRadius: 22, interactive: true))
         }
     }
 
@@ -887,33 +888,33 @@ struct StorageFilesView: View {
     }
 
     private func storageFileRow(_ file: MediaStoredFile) -> some View {
-        HStack(spacing: 18) {
+        HStack(spacing: 12) {
             RoundedRectangle(cornerRadius: 7, style: .continuous)
                 .stroke(.secondary.opacity(0.55), lineWidth: 2)
-                .frame(width: 28, height: 28)
+                .frame(width: 24, height: 24)
 
             ZStack {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(.white.opacity(0.08))
-                    .frame(width: 74, height: 74)
+                    .frame(width: 54, height: 54)
                 Image(systemName: icon(for: file.category))
-                    .font(.system(size: 31, weight: .semibold))
+                    .font(.system(size: 24, weight: .semibold))
                     .foregroundStyle(.secondary)
             }
 
             VStack(alignment: .leading, spacing: 6) {
                 Text(file.name.isEmpty ? "Untitled" : file.name)
-                    .font(.system(size: 21, weight: .black, design: .rounded))
+                    .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                 Text("\(formatBytes(file.byteCount)) • \(file.createdAt.formatted(.relative(presentation: .named)))")
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.system(size: 13, weight: .regular))
                     .foregroundStyle(.secondary)
             }
             Spacer()
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 14)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
     }
 
     private func icon(for category: MediaStorageCategory) -> String {
@@ -932,22 +933,22 @@ struct ActiveSessionsView: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 18) {
                 GlassScreenHeader(title: "Сессии")
 
                 SettingsGlassSection(title: "Активные устройства") {
                     ForEach(sessions) { session in
                         HStack(spacing: 16) {
                             Image(systemName: session.isCurrent ? "iphone.gen3" : "desktopcomputer")
-                                .font(.system(size: 26, weight: .semibold))
+                                .font(.system(size: 20, weight: .semibold))
                                 .foregroundStyle(.secondary)
-                                .frame(width: 34)
+                                .frame(width: 24)
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(session.isCurrent ? "\(session.deviceName) · текущее" : session.deviceName)
-                                    .font(.system(size: 19, weight: .black, design: .rounded))
+                                    .font(.system(size: 17, weight: .semibold))
                                     .foregroundStyle(.white)
                                 Text("\(session.systemVersion) · \(session.lastSeenAt.formatted(.relative(presentation: .named)))")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .font(.system(size: 13, weight: .regular))
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
@@ -956,24 +957,24 @@ struct ActiveSessionsView: View {
                                     dependencies.deviceSessions.terminate(session, currentUserID: dependencies.session.currentUser?.id)
                                     reload()
                                 }
-                                .font(.system(size: 15, weight: .black, design: .rounded))
+                                .font(.system(size: 14, weight: .semibold))
                             }
                         }
-                        .padding(.horizontal, 22)
-                        .frame(height: 76)
+                        .padding(.horizontal, 16)
+                        .frame(height: 64)
                     }
                 }
 
                 Text("Текущую сессию можно завершить только через выход из аккаунта.")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 40)
+                    .padding(.horizontal, 32)
             }
             .padding(.bottom, 34)
         }
         .background {
             TideBackdropView(configuration: dependencies.preferences.backdropConfiguration())
-            Color.black.opacity(0.68).ignoresSafeArea()
+            Color.black.opacity(0.42).ignoresSafeArea()
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
@@ -994,7 +995,7 @@ private struct GlassScreenHeader: View {
             GlassBackButton()
             Spacer()
             Text(title)
-                .font(.system(size: 24, weight: .black, design: .rounded))
+                .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(.white)
             Spacer()
             Color.clear.frame(width: 44, height: 44)
@@ -1032,7 +1033,7 @@ private struct SettingsGlassSection<Content: View>: View {
         VStack(alignment: .leading, spacing: 8) {
             if let title {
                 Text(title)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 16)
             }
@@ -1075,12 +1076,12 @@ private struct SettingsGlassRowContent: View {
                 .foregroundStyle(role == .destructive ? .red : .secondary)
                 .frame(width: 24)
             Text(title)
-                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(role == .destructive ? .red : .white)
             Spacer()
             if let trailing {
                 Text(trailing)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(.secondary)
             }
             if showsChevron {

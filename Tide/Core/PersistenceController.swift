@@ -44,7 +44,6 @@ final class LocalDatabase {
         bootstrapIfNeeded()
         purgeLegacyDemoDataIfNeeded()
         purgePostMediaIfNeeded()
-        purgePostsIfNeeded()
     }
 
     func bootstrapIfNeeded() {

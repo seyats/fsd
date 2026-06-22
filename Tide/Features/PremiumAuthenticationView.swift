@@ -1000,12 +1000,12 @@ struct AuthGlassBackground: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(.white.opacity(interactive ? 0.08 : 0.06))
+            .fill(.white.opacity(interactive ? 0.13 : 0.10))
             .overlay {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(.white.opacity(interactive ? 0.16 : 0.12), lineWidth: 1)
+                    .stroke(.white.opacity(interactive ? 0.14 : 0.10), lineWidth: 1)
             }
-            .shadow(color: .black.opacity(interactive ? 0.35 : 0.22), radius: 24, y: 10)
+            .shadow(color: .black.opacity(interactive ? 0.22 : 0.14), radius: 18, y: 8)
     }
 }
 

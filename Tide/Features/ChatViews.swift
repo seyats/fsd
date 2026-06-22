@@ -244,44 +244,44 @@ struct ConversationView: View {
             Button { dismiss() } label: {
                 HStack(spacing: 5) {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 26, weight: .bold))
+                        .font(.system(size: 20, weight: .bold))
                     if chat.unreadCount > 0 {
                         Text("\(chat.unreadCount)")
-                            .font(.system(size: 18, weight: .black, design: .rounded))
+                            .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(.black)
-                            .frame(width: 30, height: 30)
+                            .frame(width: 24, height: 24)
                             .background(.white, in: Circle())
                     }
                 }
                 .foregroundStyle(.white)
-                .frame(minWidth: 58, minHeight: 54)
-                .background(AuthGlassBackground(cornerRadius: 27, interactive: true))
+                .frame(minWidth: 44, minHeight: 44)
+                .background(AuthGlassBackground(cornerRadius: 22, interactive: true))
             }
             .buttonStyle(.plain)
 
             VStack(spacing: 2) {
                 Text(chat.title)
-                    .font(.system(size: 21, weight: .black, design: .rounded))
+                    .font(.system(size: 17, weight: .semibold))
                     .lineLimit(1)
                 Text(lastSeenText(for: chat))
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .font(.system(size: 12, weight: .regular))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 54)
-            .background(AuthGlassBackground(cornerRadius: 27, interactive: false))
+            .frame(height: 44)
+            .background(AuthGlassBackground(cornerRadius: 22, interactive: false))
 
             Button {
                 if let profile = profileTarget(for: chat) {
                     dependencies.router.push(.profile(profile))
                 }
             } label: {
-                AvatarView(user: profileTarget(for: chat) ?? chat.participants.first ?? fallbackChatUser(chat), size: 54)
+                AvatarView(user: profileTarget(for: chat) ?? chat.participants.first ?? fallbackChatUser(chat), size: 44)
                     .overlay(alignment: .bottomTrailing) {
                         Circle()
                             .fill(.green)
-                            .frame(width: 9, height: 9)
+                            .frame(width: 8, height: 8)
                             .opacity(chat.kind == .direct ? 1 : 0)
                     }
             }
@@ -318,7 +318,7 @@ struct ConversationView: View {
                 .padding(.horizontal, 14)
             }
 
-            HStack(spacing: 9) {
+            HStack(spacing: 8) {
                 attachmentMenu
 
                 HStack(spacing: 8) {
@@ -326,22 +326,23 @@ struct ConversationView: View {
                         .lineLimit(1...5)
                         .textInputAutocapitalization(.sentences)
                     Image(systemName: attachment == nil ? "circle.lefthalf.filled" : "paperclip.circle.fill")
-                        .font(.system(size: 23, weight: .semibold))
+                        .font(.system(size: 19, weight: .semibold))
                         .foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(AuthGlassBackground(cornerRadius: 23, interactive: true))
+                .font(.system(size: 16, weight: .regular))
+                .padding(.horizontal, 14)
+                .frame(minHeight: 44)
+                .background(AuthGlassBackground(cornerRadius: 22, interactive: true))
 
                 Button(action: primaryComposerAction) {
                     Image(systemName: canSend ? "arrow.up" : isRecordingVoice ? "stop.fill" : "mic.fill")
-                        .font(.system(size: 22, weight: .bold))
-                        .frame(width: 52, height: 52)
+                        .font(.system(size: 19, weight: .bold))
+                        .frame(width: 44, height: 44)
                         .foregroundStyle(.white)
                         .background {
                             Circle()
                                 .fill(isRecordingVoice ? Color.red.opacity(0.82) : Color.primary.opacity(0.22))
-                                .background(AuthGlassBackground(cornerRadius: 26, interactive: true).clipShape(Circle()))
+                                .background(AuthGlassBackground(cornerRadius: 22, interactive: true).clipShape(Circle()))
                         }
                         .scaleEffect(isRecordingVoice ? 1.08 : 1)
                         .animation(.easeInOut(duration: 0.32), value: isRecordingVoice)
@@ -352,12 +353,7 @@ struct ConversationView: View {
             .padding(.bottom, 9)
         }
         .padding(.top, 8)
-        .background(.ultraThinMaterial)
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(.white.opacity(0.08))
-                .frame(height: 0.6)
-        }
+        .background(.ultraThinMaterial.opacity(0.72))
     }
 
     private var canSend: Bool {
@@ -381,10 +377,10 @@ struct ConversationView: View {
             }
         } label: {
             Image(systemName: "paperclip")
-                .font(.system(size: 30, weight: .medium))
+                .font(.system(size: 22, weight: .medium))
                 .foregroundStyle(.white)
-                .frame(width: 52, height: 52)
-                .background(AuthGlassBackground(cornerRadius: 26, interactive: true))
+                .frame(width: 44, height: 44)
+                .background(AuthGlassBackground(cornerRadius: 22, interactive: true))
         }
         .buttonStyle(.plain)
     }
@@ -604,7 +600,7 @@ struct MessageBubble: View {
 
                 if !message.body.isEmpty {
                     Text(message.body)
-                        .font(.system(size: 16, weight: .regular, design: .rounded))
+                        .font(.system(size: 16, weight: .regular))
                 }
 
                 HStack(spacing: 4) {
@@ -686,7 +682,7 @@ struct MessageBubble: View {
                     .background(.white.opacity(isOutgoing ? 0.16 : 0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 VStack(alignment: .leading, spacing: 2) {
                     Text(message.attachmentKind == .audio ? "Голосовое сообщение" : fileName)
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold))
                         .lineLimit(1)
                     Text(message.attachmentKind == .audio ? "Аудио" : "Файл")
                         .font(.caption)
