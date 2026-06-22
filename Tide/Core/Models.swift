@@ -355,6 +355,7 @@ enum AppRoute: Hashable {
     case storage
     case dataManagement
     case storageFiles
+    case activeSessions
     case stories(UUID)
     case live
     case browser(URL)

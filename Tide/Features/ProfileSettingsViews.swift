@@ -25,7 +25,7 @@ struct EditProfileView: View {
             Color.black.opacity(0.62).ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 28) {
+                VStack(spacing: 18) {
                     topBar
                     avatarEditor
                     identityCard
@@ -33,14 +33,14 @@ struct EditProfileView: View {
                     accountCard
                     if let footnote = authInfo.providerFootnote {
                         Text(footnote)
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 44)
+                            .padding(.horizontal, 28)
                     }
                 }
                 .padding(.horizontal, 16)
-                .padding(.bottom, 32)
+                .padding(.bottom, 24)
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -64,39 +64,39 @@ struct EditProfileView: View {
     }
 
     private var topBar: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 12) {
             Button { dismiss() } label: {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(.white)
-                    .frame(width: 58, height: 58)
-                    .background(AuthGlassBackground(cornerRadius: 29, interactive: true))
+                    .frame(width: 44, height: 44)
+                    .background(AuthGlassBackground(cornerRadius: 22, interactive: true))
             }
             .buttonStyle(.plain)
 
             Text("Профиль")
-                .font(.system(size: 29, weight: .black, design: .rounded))
+                .font(.system(size: 24, weight: .black, design: .rounded))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Button(action: saveProfile) {
                 Text("Сохранить")
-                    .font(.system(size: 19, weight: .black, design: .rounded))
+                    .font(.system(size: 16, weight: .black, design: .rounded))
                     .foregroundStyle(canSave ? .white : .secondary)
-                    .padding(.horizontal, 24)
-                    .frame(height: 58)
-                    .background(AuthGlassBackground(cornerRadius: 29, interactive: canSave))
+                    .padding(.horizontal, 18)
+                    .frame(height: 44)
+                    .background(AuthGlassBackground(cornerRadius: 22, interactive: canSave))
             }
             .buttonStyle(.plain)
             .disabled(!canSave)
         }
-        .padding(.top, 8)
+        .padding(.top, 4)
     }
 
     private var avatarEditor: some View {
         VStack(spacing: 0) {
             profileAvatarPreview
-                .shadow(color: .black.opacity(0.32), radius: 24, y: 14)
+                .shadow(color: .black.opacity(0.30), radius: 18, y: 10)
 
             Menu {
                 PhotosPicker(selection: $avatarPickerItem, matching: .images) {
@@ -122,16 +122,16 @@ struct EditProfileView: View {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 18, weight: .black))
                 }
-                .font(.system(size: 20, weight: .black, design: .rounded))
+                .font(.system(size: 16, weight: .black, design: .rounded))
                 .foregroundStyle(.white)
-                .padding(.horizontal, 24)
-                .frame(height: 50)
-                .background(AuthGlassBackground(cornerRadius: 25, interactive: true))
+                .padding(.horizontal, 18)
+                .frame(height: 38)
+                .background(AuthGlassBackground(cornerRadius: 19, interactive: true))
             }
             .buttonStyle(.plain)
-            .offset(y: -20)
+            .offset(y: -14)
         }
-        .padding(.top, 18)
+        .padding(.top, 10)
     }
 
     private var identityCard: some View {
@@ -140,29 +140,38 @@ struct EditProfileView: View {
             divider
             glassTextField("Фамилия", text: $surname, field: .surname)
         }
-        .padding(.vertical, 10)
-        .background(AuthGlassBackground(cornerRadius: 32, interactive: false))
-        .padding(.horizontal, 24)
+        .padding(.vertical, 6)
+        .background(AuthGlassBackground(cornerRadius: 22, interactive: false))
+        .padding(.horizontal, 16)
         .overlay(alignment: .bottomLeading) {
             if let validationMessage {
                 Text(validationMessage)
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundStyle(.red)
-                    .offset(x: 44, y: 26)
+                    .offset(x: 28, y: 20)
             }
         }
     }
 
     private var birthdayCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Toggle("Показывать дату рождения", isOn: $hasBirthday)
+        VStack(alignment: .leading, spacing: 8) {
+            Toggle("Показывать дату рождения", isOn: Binding(
+                get: { hasBirthday },
+                set: { value in
+                    withAnimation(.easeInOut(duration: 0.35)) {
+                        hasBirthday = value
+                    }
+                }
+            ))
                 .tint(.white)
             if hasBirthday {
                 DatePicker("День рождения", selection: $birthday, displayedComponents: .date)
                     .datePickerStyle(.wheel)
                     .labelsHidden()
                     .frame(maxWidth: .infinity)
+                    .frame(height: 156)
                     .clipped()
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             } else {
                 HStack {
                     Text("Год рождения")
@@ -170,18 +179,20 @@ struct EditProfileView: View {
                     Text("Не указан")
                         .foregroundStyle(.secondary)
                 }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .font(.system(size: 21, weight: .bold, design: .rounded))
+        .animation(.easeInOut(duration: 0.35), value: hasBirthday)
+        .font(.system(size: 17, weight: .bold, design: .rounded))
         .foregroundStyle(.white)
-        .padding(22)
-        .background(AuthGlassBackground(cornerRadius: 28, interactive: false))
-        .padding(.horizontal, 24)
+        .padding(16)
+        .background(AuthGlassBackground(cornerRadius: 22, interactive: false))
+        .padding(.horizontal, 16)
     }
 
     private var accountCard: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .top, spacing: 16) {
+            HStack(alignment: .top, spacing: 12) {
                 Text("Электронная почта")
                     .foregroundStyle(.white)
                 Spacer()
@@ -190,8 +201,8 @@ struct EditProfileView: View {
                     .multilineTextAlignment(.trailing)
                     .lineLimit(2)
             }
-            .padding(.horizontal, 22)
-            .padding(.vertical, 18)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
 
             divider
 
@@ -205,14 +216,14 @@ struct EditProfileView: View {
                         .foregroundStyle(.secondary)
                 }
                 .foregroundStyle(.white)
-                .padding(.horizontal, 22)
-                .padding(.vertical, 18)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
             }
             .buttonStyle(.plain)
         }
-        .font(.system(size: 21, weight: .bold, design: .rounded))
-        .background(AuthGlassBackground(cornerRadius: 28, interactive: false))
-        .padding(.horizontal, 24)
+        .font(.system(size: 17, weight: .bold, design: .rounded))
+        .background(AuthGlassBackground(cornerRadius: 22, interactive: false))
+        .padding(.horizontal, 16)
     }
 
     private var profileAvatarPreview: some View {
@@ -223,17 +234,17 @@ struct EditProfileView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 ))
-                .frame(width: 128, height: 128)
+                .frame(width: 96, height: 96)
             if let avatarImageURL,
                let image = UIImage(contentsOfFile: avatarImageURL.path) {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 128, height: 128)
+                    .frame(width: 96, height: 96)
                     .clipShape(Circle())
             } else {
                 Text(String(name.first ?? surname.first ?? Character("M")).uppercased())
-                    .font(.system(size: 64, weight: .regular, design: .rounded))
+                    .font(.system(size: 48, weight: .regular, design: .rounded))
                     .foregroundStyle(.white)
             }
         }
@@ -243,18 +254,18 @@ struct EditProfileView: View {
         TextField(placeholder, text: text)
             .focused($focusedField, equals: field)
             .textInputAutocapitalization(.words)
-            .font(.system(size: 23, weight: .bold, design: .rounded))
+            .font(.system(size: 17, weight: .bold, design: .rounded))
             .foregroundStyle(.white)
-            .padding(.horizontal, 22)
-            .frame(height: 64)
+            .padding(.horizontal, 16)
+            .frame(height: 52)
     }
 
     private var divider: some View {
         Rectangle()
             .fill(.white.opacity(0.10))
             .frame(height: 1)
-            .padding(.leading, 22)
-            .padding(.trailing, 18)
+            .padding(.leading, 16)
+            .padding(.trailing, 16)
     }
 
     private var authInfo: AuthAccountInfo {
@@ -379,45 +390,33 @@ struct SettingsView: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 26) {
+            VStack(alignment: .leading, spacing: 18) {
                 Text("Настройки")
-                    .font(.system(size: 42, weight: .black, design: .rounded))
+                    .font(.system(size: 28, weight: .black, design: .rounded))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
 
                 SettingsGlassSection(title: "Приложение") {
                     SettingsGlassRow(symbol: "circle.lefthalf.filled", title: "Оформление") {
                         dependencies.router.push(.appearance)
                     }
-                    SettingsGlassRow(symbol: "hand.tap", title: "Тактильный отклик") {}
-                    SettingsGlassRow(symbol: "bell", title: "Уведомления") {}
-                    SettingsGlassRow(symbol: "rectangle.inset.filled", title: "Виджет") {}
-                    SettingsGlassRow(symbol: "globe", title: "Язык приложения", trailing: "русский") {}
+                    SettingsGlassRow(symbol: "bell", title: "Уведомления") {
+                        dependencies.router.push(.notifications)
+                    }
+                    SettingsGlassRow(symbol: "globe", title: "Язык приложения", trailing: "русский", showsChevron: false) {}
                 }
 
                 SettingsGlassSection(title: "Tide") {
-                    SettingsGlassRow(symbol: "slider.horizontal.3", title: "Настроить") {}
-                    SettingsGlassRow(symbol: "rectangle.connected.to.line.below", title: "Коннекторы") {
-                        dependencies.router.push(.botPlatform)
+                    SettingsGlassRow(symbol: "iphone.gen3", title: "Сессии") {
+                        dependencies.router.push(.activeSessions)
                     }
-                    SettingsGlassRow(symbol: "atom", title: "Продвинутые") {
-                        dependencies.router.push(.dataManagement)
-                    }
-                    NavigationLink {
-                        ActiveSessionsView()
-                    } label: {
-                        SettingsGlassRowContent(symbol: "iphone.gen3", title: "Сессии", trailing: nil)
-                    }
-                    .buttonStyle(.plain)
                     SettingsGlassRow(symbol: "externaldrive", title: "Хранилище") {
                         dependencies.router.push(.storage)
                     }
-                }
-
-                SettingsGlassSection(title: nil) {
-                    SettingsGlassRow(symbol: "star.square", title: "Детский режим") {}
-                    SettingsGlassRow(symbol: "18.square", title: "Настройки контента для взрослых") {}
+                    SettingsGlassRow(symbol: "externaldrive.connected.to.line.below", title: "Управление данными") {
+                        dependencies.router.push(.dataManagement)
+                    }
                 }
 
                 SettingsGlassSection(title: "Аккаунт") {
@@ -432,7 +431,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .padding(.bottom, 36)
+            .padding(.bottom, 28)
         }
         .background {
             TideBackdropView(configuration: dependencies.preferences.backdropConfiguration())
@@ -459,19 +458,19 @@ struct AppearanceView: View {
     var body: some View {
         @Bindable var preferences = dependencies.preferences
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 18) {
                 GlassScreenHeader(title: "Оформление")
 
-                HStack(spacing: 14) {
+                HStack(spacing: 10) {
                     appearanceModeCard(title: "Система", symbol: "circle.lefthalf.filled", theme: .system)
                     appearanceModeCard(title: "День", symbol: "sun.max.fill", theme: .light)
                     appearanceModeCard(title: "Ночь", symbol: "moon.fill", theme: .dark)
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 16)
 
                 VStack(alignment: .leading, spacing: 18) {
                     Text("Размер текста")
-                        .font(.system(size: 20, weight: .black, design: .rounded))
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundStyle(.secondary)
 
                     VStack(spacing: 22) {
@@ -503,20 +502,27 @@ struct AppearanceView: View {
                                 .background(AuthGlassBackground(cornerRadius: 22, interactive: false))
                         }
                     }
-                    .padding(22)
-                    .background(AuthGlassBackground(cornerRadius: 28, interactive: false))
+                    .padding(16)
+                    .background(AuthGlassBackground(cornerRadius: 22, interactive: false))
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 16)
 
                 SettingsGlassSection(title: "Обои") {
-                    PhotosPicker(selection: $wallpaperItem, matching: .any(of: [.images, .videos])) {
-                        SettingsGlassRowContent(symbol: "photo.on.rectangle", title: "Фотогалерея", trailing: preferences.galleryBackdropKind == .none ? nil : preferences.galleryBackdropKind.title)
-                    }
-                    .buttonStyle(.plain)
-                    Button {
-                        isImportingWallpaperFile = true
+                    Menu {
+                        PhotosPicker(selection: $wallpaperItem, matching: .any(of: [.images, .videos])) {
+                            Label("Фотогалерея", systemImage: "photo.on.rectangle")
+                        }
+                        Button {
+                            isImportingWallpaperFile = true
+                        } label: {
+                            Label("Выбрать из файлов", systemImage: "folder")
+                        }
                     } label: {
-                        SettingsGlassRowContent(symbol: "folder", title: "Выбрать из файлов", trailing: nil)
+                        SettingsGlassRowContent(
+                            symbol: "photo.on.rectangle",
+                            title: "Сменить",
+                            trailing: preferences.galleryBackdropKind == .none ? nil : preferences.galleryBackdropKind.title
+                        )
                     }
                     .buttonStyle(.plain)
                     if preferences.galleryBackdropKind != .none {
@@ -526,10 +532,10 @@ struct AppearanceView: View {
                             Slider(value: $preferences.galleryBackdropOpacity, in: 0.2...1)
                                 .tint(.white)
                         }
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 22)
-                        .padding(.vertical, 14)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
                         Button(role: .destructive) {
                             preferences.galleryBackdropURLString = ""
                             preferences.galleryBackdropKind = .none
@@ -568,16 +574,16 @@ struct AppearanceView: View {
                 dependencies.preferences.theme = theme
             }
         } label: {
-            VStack(spacing: 16) {
+            VStack(spacing: 10) {
                 Image(systemName: symbol)
-                    .font(.system(size: 34, weight: .black))
+                    .font(.system(size: 26, weight: .black))
                 Text(title)
-                    .font(.system(size: 18, weight: .black, design: .rounded))
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
             }
             .foregroundStyle(selected ? .white : .secondary)
             .frame(maxWidth: .infinity)
-            .frame(height: 132)
-            .background(AuthGlassBackground(cornerRadius: 24, interactive: selected))
+            .frame(height: 96)
+            .background(AuthGlassBackground(cornerRadius: 20, interactive: selected))
         }
         .buttonStyle(.plain)
     }
@@ -592,20 +598,20 @@ struct AppearanceView: View {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
-                        .frame(height: 132)
-                        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-                        .padding(.horizontal, 22)
+                        .frame(height: 104)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .padding(.horizontal, 16)
                 }
             case .video:
                 ZStack {
                     TideVideoThumbnailView(url: url)
                     Image(systemName: "play.circle.fill")
-                        .font(.system(size: 42, weight: .semibold))
+                        .font(.system(size: 34, weight: .semibold))
                         .foregroundStyle(.white)
                 }
-                .frame(height: 132)
-                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-                .padding(.horizontal, 22)
+                .frame(height: 104)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .padding(.horizontal, 16)
             case .none:
                 EmptyView()
             }
@@ -988,13 +994,13 @@ private struct GlassScreenHeader: View {
             GlassBackButton()
             Spacer()
             Text(title)
-                .font(.system(size: 28, weight: .black, design: .rounded))
+                .font(.system(size: 24, weight: .black, design: .rounded))
                 .foregroundStyle(.white)
             Spacer()
-            Color.clear.frame(width: 58, height: 58)
+            Color.clear.frame(width: 44, height: 44)
         }
-        .padding(.horizontal, 24)
-        .padding(.top, 12)
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
     }
 }
 
@@ -1004,10 +1010,10 @@ private struct GlassBackButton: View {
     var body: some View {
         Button { dismiss() } label: {
             Image(systemName: "chevron.left")
-                .font(.system(size: 28, weight: .bold))
+                .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(.white)
-                .frame(width: 58, height: 58)
-                .background(AuthGlassBackground(cornerRadius: 29, interactive: true))
+                .frame(width: 44, height: 44)
+                .background(AuthGlassBackground(cornerRadius: 22, interactive: true))
         }
         .buttonStyle(.plain)
     }
@@ -1023,18 +1029,18 @@ private struct SettingsGlassSection<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
             if let title {
                 Text(title)
-                    .font(.system(size: 21, weight: .black, design: .rounded))
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, 16)
             }
             VStack(spacing: 0) {
                 content
             }
-            .background(AuthGlassBackground(cornerRadius: 30, interactive: false))
-            .padding(.horizontal, 24)
+            .background(AuthGlassBackground(cornerRadius: 22, interactive: false))
+            .padding(.horizontal, 16)
         }
     }
 }
@@ -1044,11 +1050,12 @@ private struct SettingsGlassRow: View {
     let title: String
     var trailing: String?
     var role: ButtonRole?
+    var showsChevron = true
     let action: () -> Void
 
     var body: some View {
         Button(role: role, action: action) {
-            SettingsGlassRowContent(symbol: symbol, title: title, trailing: trailing, role: role)
+            SettingsGlassRowContent(symbol: symbol, title: title, trailing: trailing, role: role, showsChevron: showsChevron)
         }
         .buttonStyle(.plain)
     }
@@ -1059,34 +1066,37 @@ private struct SettingsGlassRowContent: View {
     let title: String
     var trailing: String?
     var role: ButtonRole?
+    var showsChevron = true
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 12) {
             Image(systemName: symbol)
-                .font(.system(size: 27, weight: .semibold))
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(role == .destructive ? .red : .secondary)
-                .frame(width: 34)
+                .frame(width: 24)
             Text(title)
-                .font(.system(size: 22, weight: .black, design: .rounded))
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
                 .foregroundStyle(role == .destructive ? .red : .white)
             Spacer()
             if let trailing {
                 Text(trailing)
-                    .font(.system(size: 21, weight: .black, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundStyle(.secondary)
             }
-            Image(systemName: "chevron.right")
-                .font(.system(size: 19, weight: .black))
-                .foregroundStyle(.secondary)
+            if showsChevron {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(.secondary)
+            }
         }
-        .padding(.horizontal, 22)
-        .frame(height: 68)
+        .padding(.horizontal, 16)
+        .frame(height: 52)
         .overlay(alignment: .bottom) {
             Rectangle()
                 .fill(.white.opacity(0.10))
                 .frame(height: 1)
-                .padding(.leading, 78)
-                .padding(.trailing, 18)
+                .padding(.leading, 52)
+                .padding(.trailing, 16)
         }
     }
 }
