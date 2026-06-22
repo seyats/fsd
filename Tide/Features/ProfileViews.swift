@@ -348,11 +348,11 @@ struct EditProfileView: View {
                 }
                 HStack(spacing: 8) {
                     PhotosPicker(selection: $avatarPickerItem, matching: .images) {
-                        glassPill("Фото", symbol: "camera.fill")
+                        EditProfileGlassPill(title: "Фото", symbol: "camera.fill")
                     }
                     .buttonStyle(TideGlassIconButtonStyle())
                     PhotosPicker(selection: $coverPickerItem, matching: .images) {
-                        glassPill("Обложка", symbol: "photo.fill")
+                        EditProfileGlassPill(title: "Обложка", symbol: "photo.fill")
                     }
                     .buttonStyle(TideGlassIconButtonStyle())
                     Button {
@@ -362,7 +362,7 @@ struct EditProfileView: View {
                             avatarSymbol = "person.crop.circle.fill"
                         }
                     } label: {
-                        glassPill("Удалить", symbol: "trash", tint: TidePalette.danger)
+                        EditProfileGlassPill(title: "Удалить", symbol: "trash", tint: TidePalette.danger)
                     }
                     .buttonStyle(TideGlassIconButtonStyle())
                 }
@@ -487,16 +487,6 @@ struct EditProfileView: View {
         Rectangle()
             .fill(.white.opacity(0.08))
             .frame(height: 0.7)
-    }
-
-    private func glassPill(_ title: String, symbol: String, tint: Color = .white) -> some View {
-        Label(title, systemImage: symbol)
-            .font(.system(size: 12, weight: .bold, design: .rounded))
-            .foregroundStyle(tint)
-            .padding(.horizontal, 12)
-            .frame(height: 34)
-            .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().stroke(.white.opacity(0.13), lineWidth: 0.7))
     }
 
     private func validationBanner(_ message: String) -> some View {
@@ -675,6 +665,22 @@ private struct EditProfileSnapshot: Equatable {
     let avatarSymbol: String
     let avatarImageURL: URL?
     let coverImageURL: URL?
+}
+
+private struct EditProfileGlassPill: View {
+    let title: String
+    let symbol: String
+    var tint: Color = .white
+
+    var body: some View {
+        Label(title, systemImage: symbol)
+            .font(.system(size: 12, weight: .bold, design: .rounded))
+            .foregroundStyle(tint)
+            .padding(.horizontal, 12)
+            .frame(height: 34)
+            .background(.ultraThinMaterial, in: Capsule())
+            .overlay(Capsule().stroke(.white.opacity(0.13), lineWidth: 0.7))
+    }
 }
 
 struct SettingsView: View {
