@@ -68,9 +68,9 @@ enum PostVisibility: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .everyone: String(localized: "post_visibility_everyone")
-        case .followers: String(localized: "post_visibility_followers")
-        case .onlyMe: String(localized: "post_visibility_only_me")
+        case .everyone: "Для всех"
+        case .followers: "Только подписчикам"
+        case .onlyMe: "Только мне"
         }
     }
 }
@@ -113,9 +113,9 @@ enum ChatKind: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .direct: String(localized: "chat_kind_direct")
-        case .group: String(localized: "chat_kind_group")
-        case .channel: String(localized: "chat_kind_channel")
+        case .direct: "Личный"
+        case .group: "Группа"
+        case .channel: "Канал"
         }
     }
 }
@@ -159,10 +159,10 @@ enum AccountStatus: String, CaseIterable, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .active: String(localized: "account_status_active")
-        case .restricted: String(localized: "account_status_restricted")
-        case .suspended: String(localized: "account_status_suspended")
-        case .deleted: String(localized: "account_status_deleted")
+        case .active: "Активный"
+        case .restricted: "Ограничен"
+        case .suspended: "Заблокирован"
+        case .deleted: "Удалён"
         }
     }
 }
@@ -187,13 +187,13 @@ enum ReportReason: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .spam: String(localized: "report_reason_spam")
-        case .harassment: String(localized: "report_reason_harassment")
-        case .violence: String(localized: "report_reason_violence")
-        case .nudity: String(localized: "report_reason_nudity")
-        case .misinformation: String(localized: "report_reason_misinformation")
-        case .copyright: String(localized: "report_reason_copyright")
-        case .other: String(localized: "report_reason_other")
+        case .spam: "Спам"
+        case .harassment: "Домогательства"
+        case .violence: "Насилие"
+        case .nudity: "Нагота"
+        case .misinformation: "Дезинформация"
+        case .copyright: "Авторские права"
+        case .other: "Другое"
         }
     }
 }
@@ -278,19 +278,19 @@ enum AppTab: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .home: String(localized: "tab_home")
-        case .chats: String(localized: "tab_chats")
-        case .notifications: String(localized: "tab_activity")
-        case .profile: String(localized: "tab_profile")
+        case .home: "Лента"
+        case .chats: "Чаты"
+        case .notifications: "Уведомления"
+        case .profile: "Профиль"
         }
     }
 
     var shortTitle: String {
         switch self {
-        case .home: String(localized: "tab_home_short")
-        case .chats: String(localized: "tab_chats_short")
-        case .notifications: String(localized: "tab_activity_short")
-        case .profile: String(localized: "tab_profile_short")
+        case .home: "Лента"
+        case .chats: "Чаты"
+        case .notifications: "Уведомления"
+        case .profile: "Профиль"
         }
     }
 

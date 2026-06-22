@@ -66,10 +66,13 @@ struct ProfileView: View {
             HStack {
                 Spacer()
                 if isCurrentUser {
-                    Button(String(localized: "profile_edit_profile_button")) { dependencies.router.sheet = .editProfile }.buttonStyle(TideSecondaryButtonStyle())
+                    Button("Редактировать") { dependencies.router.sheet = .editProfile }
+                        .buttonStyle(TideSecondaryButtonStyle())
                 } else {
-                    Button(String(localized: "profile_message"), action: startMessage).buttonStyle(TideSecondaryButtonStyle())
-                    Button(profile.isFollowing ? String(localized: "profile_following_state") : String(localized: "profile_follow"), action: toggleFollow).buttonStyle(TidePrimaryButtonStyle())
+                    Button("Сообщение", action: startMessage)
+                        .buttonStyle(TideSecondaryButtonStyle())
+                    Button(profile.isFollowing ? "Вы подписаны" : "Подписаться", action: toggleFollow)
+                        .buttonStyle(TidePrimaryButtonStyle())
                 }
             }
             .padding(.horizontal)
@@ -89,12 +92,12 @@ struct ProfileView: View {
                     .foregroundStyle(.secondary)
                 }
                 Text(profile.biography)
-                Text("\(String(localized: "profile_joined")) \(profile.joinedAt.formatted(.dateTime.month(.wide).year()))")
+                Text("В сети с \(profile.joinedAt.formatted(.dateTime.month(.wide).year()))")
                     .font(.subheadline).foregroundStyle(.secondary)
                 HStack(spacing: 20) {
-                    counter(profile.following, String(localized: "profile_following"))
-                    counter(profile.followers, String(localized: "profile_followers"))
-                    counter(authoredPosts.count, String(localized: "profile_posts"))
+                    counter(profile.following, "Подписки")
+                    counter(profile.followers, "Подписчики")
+                    counter(authoredPosts.count, "Посты")
                 }
                 .padding(.top, 4)
             }
@@ -250,6 +253,7 @@ struct EditProfileView: View {
                             VStack(alignment: .leading, spacing: 12) {
                                 Toggle("Показывать дату рождения", isOn: $hasBirthday)
                                     .toggleStyle(.switch)
+                                    .tint(TidePalette.success)
                                 if hasBirthday {
                                     DatePicker("Дата", selection: $birthday, displayedComponents: .date)
                                         .labelsHidden()
@@ -461,11 +465,11 @@ struct SettingsView: View {
         @Bindable var preferences = dependencies.preferences
         Form {
             Section("Оформление") {
-                Picker("Theme", selection: $preferences.theme) {
+                Picker("Тема", selection: $preferences.theme) {
                     ForEach(PreferencesStore.Theme.allCases) { Text($0.title).tag($0) }
                 }
-                LabeledContent("Дизайн", value: "Monochrome Liquid Glass")
-                Picker("Backdrop", selection: $preferences.backdropStyle) {
+                LabeledContent("Дизайн", value: "Жидкое стекло")
+                Picker("Фон", selection: $preferences.backdropStyle) {
                     ForEach(PreferencesStore.BackdropStyle.allCases) { Text($0.title).tag($0) }
                 }
                 TextField("Ресурс фона", text: $preferences.backdropResourceName)
@@ -476,19 +480,24 @@ struct SettingsView: View {
             }
             Section("Уведомления") {
                 Toggle("Push-уведомления", isOn: $preferences.notificationsEnabled)
+                    .tint(TidePalette.success)
                 Button("Запросить доступ к уведомлениям") { Task { await dependencies.push.requestAuthorization() } }
                 LabeledContent("Статус", value: pushStatus)
-                if let token = dependencies.push.deviceToken { LabeledContent("APNs token", value: String(token.prefix(12)) + "...") }
+                if let token = dependencies.push.deviceToken { LabeledContent("Токен APNs", value: String(token.prefix(12)) + "...") }
             }
             Section("Приватность") {
                 Toggle("Отчёты о прочтении", isOn: $preferences.readReceiptsEnabled)
+                    .tint(TidePalette.success)
                 Toggle("Скрывать чувствительный контент", isOn: $preferences.sensitiveContentHidden)
+                    .tint(TidePalette.success)
                 NavigationLink("Заблокированные аккаунты") { BlockedAccountsView() }
                 NavigationLink("Активные сессии") { ActiveSessionsView() }
             }
             Section("Данные") {
                 Toggle("Автовоспроизведение видео", isOn: $preferences.autoplayVideo)
+                    .tint(TidePalette.success)
                 Toggle("Загрузка через сотовую сеть", isOn: $preferences.cellularUploadsEnabled)
+                    .tint(TidePalette.success)
                 LabeledContent("Хранилище", value: "SwiftData")
             }
             Section("Разработчикам") {
@@ -504,7 +513,7 @@ struct SettingsView: View {
                 Button("Удалить аккаунт", role: .destructive) { confirmsDeletion = true }
             }
         }
-        .navigationTitle(String(localized: "settings_title"))
+        .navigationTitle("Настройки")
         .scrollContentBackground(.hidden)
         .confirmationDialog("Удалить этот локальный аккаунт?", isPresented: $confirmsDeletion, titleVisibility: .visible) {
             Button("Удалить аккаунт", role: .destructive) {
@@ -542,7 +551,7 @@ struct BlockedAccountsView: View {
                 ContentUnavailableView("Заблокированных аккаунтов нет", systemImage: "person.crop.circle.badge.checkmark")
             }
         }
-        .navigationTitle(String(localized: "settings_blocked_accounts"))
+        .navigationTitle("Заблокированные аккаунты")
     }
 }
 
@@ -563,6 +572,6 @@ struct ActiveSessionsView: View {
             }
         }
         .scrollContentBackground(.hidden)
-        .navigationTitle(String(localized: "settings_active_sessions"))
+        .navigationTitle("Активные сессии")
     }
 }

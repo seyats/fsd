@@ -44,7 +44,7 @@ struct AvatarView: View {
             if user.username.caseInsensitiveCompare("durov") == .orderedSame {
                 TideBrandLogoView(size: size, style: .circle)
             } else if let url = user.avatarImageURL,
-               let image = UIImage(contentsOfFile: url.path) {
+                      let image = UIImage(contentsOfFile: url.path) {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
@@ -57,7 +57,7 @@ struct AvatarView: View {
         }
         .frame(width: size, height: size)
         .overlay(Circle().stroke(.primary.opacity(0.16), lineWidth: 0.5))
-        .accessibilityLabel("\(user.name) avatar")
+        .accessibilityLabel("\(user.name) аватар")
     }
 }
 
@@ -70,7 +70,7 @@ struct VerifiedName: View {
             if user.isVerified {
                 TideBrandLogoView(size: 16, style: .circle)
                     .overlay(Circle().stroke(.primary.opacity(0.18), lineWidth: 0.5))
-                    .accessibilityLabel("Verified")
+                    .accessibilityLabel("Верифицирован")
             }
         }
     }
@@ -119,16 +119,32 @@ struct TideBrandLogoView: View {
 
 struct GlassCardModifier: ViewModifier {
     let interactive: Bool
+    var cornerRadius: CGFloat = 22
+    var tint: Color? = nil
 
     func body(content: Content) -> some View {
         if #available(iOS 26, *) {
             content.glassEffect(
-                interactive ? .regular.interactive() : .regular,
-                in: .rect(cornerRadius: 22)
+                glass,
+                in: .rect(cornerRadius: cornerRadius)
             )
         } else {
-            content.background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22))
+            content
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .stroke(.white.opacity(0.12), lineWidth: 0.7)
+                }
         }
+    }
+
+    @available(iOS 26, *)
+    private var glass: Glass {
+        var effect = Glass.regular
+        if let tint {
+            effect = effect.tint(tint)
+        }
+        return interactive ? effect.interactive() : effect
     }
 }
 
@@ -202,14 +218,14 @@ struct TideConnectionBadge: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background(TidePalette.subtle, in: Capsule())
-        .accessibilityLabel("Chat connection: \(label)")
+        .accessibilityLabel("Связь чата: \(label)")
     }
 
     private var label: String {
         switch state {
         case .connected: "Подключено"
         case .connecting: "Подключение"
-        case .reconnecting: "Повторное подключение"
+        case .reconnecting: "Восстановление связи"
         case .failed: "Нет связи"
         case .disconnected: "Нет связи"
         }
@@ -217,8 +233,8 @@ struct TideConnectionBadge: View {
 }
 
 extension View {
-    func tideGlass(interactive: Bool = false) -> some View {
-        modifier(GlassCardModifier(interactive: interactive))
+    func tideGlass(interactive: Bool = false, cornerRadius: CGFloat = 22, tint: Color? = nil) -> some View {
+        modifier(GlassCardModifier(interactive: interactive, cornerRadius: cornerRadius, tint: tint))
     }
 
     func tideSurface(cornerRadius: CGFloat = 20) -> some View {

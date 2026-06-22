@@ -49,8 +49,8 @@ struct PremiumAuthenticationView: View {
             AuthChromeLogo(size: 88)
                 .padding(.bottom, 28)
 
-            Text("\u{041d}\u{0430}\u{0447}\u{0430}\u{0442}\u{044c} \u{0431}\u{0435}\u{0441}\u{0435}\u{0434}\u{0443}")
-                .font(.system(size: 42, weight: .black, design: .rounded))
+            Text("Начать беседу")
+                .font(.system(size: 40, weight: .black, design: .rounded))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
 
@@ -66,27 +66,27 @@ struct PremiumAuthenticationView: View {
                 AuthCircleIconButton(systemImage: "envelope") { showEmail() }
             }
 
-            AuthDivider(title: "\u{0438}\u{043b}\u{0438}")
-                .padding(.top, 30)
+            AuthDivider(title: "или")
+                .padding(.top, 26)
 
             Button {
-                setPlaceholder("\u{0412}\u{0445}\u{043e}\u{0434} \u{043f}\u{043e} \u{0442}\u{0435}\u{043b}\u{0435}\u{0444}\u{043e}\u{043d}\u{0443} \u{043f}\u{043e}\u{043a}\u{0430} \u{0440}\u{0430}\u{0431}\u{043e}\u{0442}\u{0430}\u{0435}\u{0442} \u{043a}\u{0430}\u{043a} \u{0437}\u{0430}\u{0433}\u{043b}\u{0443}\u{0448}\u{043a}\u{0430}.")
+                setPlaceholder("Вход по телефону пока работает как заглушка.")
             } label: {
                 HStack(spacing: 14) {
                     Image(systemName: "phone")
-                        .font(.system(size: 24, weight: .heavy))
-                    Text("\u{041f}\u{0440}\u{043e}\u{0434}\u{043e}\u{043b}\u{0436}\u{0438}\u{0442}\u{044c} \u{0441} \u{0442}\u{0435}\u{043b}\u{0435}\u{0444}\u{043e}\u{043d}\u{043e}\u{043c}")
-                        .font(.system(size: 24, weight: .black, design: .rounded))
+                        .font(.system(size: 20, weight: .heavy))
+                    Text("Продолжить с телефоном")
+                        .font(.system(size: 20, weight: .black, design: .rounded))
                 }
                 .foregroundStyle(.black)
                 .frame(maxWidth: .infinity)
-                .frame(height: 72)
+                .frame(height: 62)
                 .background(.white, in: Capsule())
             }
             .padding(.top, 24)
 
             Text("Продолжая, ты соглашаешься с нашими\nУсловиями, Политикой конфиденциальности и\nПолитикой использования файлов cookie.")
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(.system(size: 16, weight: .bold, design: .rounded))
                 .foregroundStyle(.white.opacity(0.42))
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
@@ -97,15 +97,15 @@ struct PremiumAuthenticationView: View {
             } label: {
                 HStack(spacing: 16) {
                     Image(systemName: "at")
-                    Text("\u{0412}\u{043e}\u{0439}\u{0442}\u{0438} \u{0441} \u{0438}\u{043c}\u{0435}\u{043d}\u{0435}\u{043c} \u{043f}\u{043e}\u{043b}\u{044c}\u{0437}\u{043e}\u{0432}\u{0430}\u{0442}\u{0435}\u{043b}\u{044f}")
+                    Text("Войти с именем пользователя")
                     Spacer()
                     Image(systemName: "chevron.right")
                 }
-                .font(.system(size: 22, weight: .heavy, design: .rounded))
+                .font(.system(size: 19, weight: .heavy, design: .rounded))
                 .foregroundStyle(.white.opacity(0.46))
                 .padding(.horizontal, 28)
                 .frame(maxWidth: .infinity)
-                .frame(height: 86)
+                .frame(height: 70)
                 .background(Color.white.opacity(0.04))
             }
             .padding(.horizontal, -28)

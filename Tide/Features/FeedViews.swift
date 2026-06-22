@@ -45,7 +45,7 @@ struct FeedView: View {
                 }
             }
         }
-        .searchable(text: $social.query, prompt: String(localized: "feed_search_prompt"))
+        .searchable(text: $social.query, prompt: "Посты, люди и хэштеги")
         .refreshable { await social.refresh() }
         .navigationTitle("Лента")
         .scrollContentBackground(.hidden)
@@ -100,7 +100,7 @@ struct StoryRail: View {
                                 .foregroundStyle(TidePalette.inverse, TidePalette.ink)
                                 .background(TidePalette.paper, in: Circle())
                         }
-                        Text(String(localized: "story_your")).font(.caption).lineLimit(1).frame(width: 68)
+                        Text("Ваша история").font(.caption).lineLimit(1).frame(width: 68)
                     }
                 }
                 .buttonStyle(.plain)

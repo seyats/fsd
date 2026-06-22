@@ -13,16 +13,16 @@ struct LoginView: View {
                     Spacer()
 
                     HeaderSection()
-                        .padding(.bottom, 48)
+                        .padding(.bottom, 44)
 
                     SocialAuthSection(namespace: glassNamespace)
-                        .padding(.bottom, 32)
+                        .padding(.bottom, 28)
 
                     DividerSection()
-                        .padding(.bottom, 32)
+                        .padding(.bottom, 28)
 
                     ActionButtonsSection()
-                        .padding(.bottom, 64)
+                        .padding(.bottom, 56)
 
                     Spacer()
 
@@ -42,11 +42,11 @@ enum SocialBrand: String, CaseIterable {
 @available(iOS 17.0, *)
 private struct HeaderSection: View {
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 22) {
             Image("TideBubbleLogo")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 112, height: 112)
+                .frame(width: 104, height: 104)
                 .clipShape(Circle())
                 .shadow(color: .white.opacity(0.18), radius: 20, y: 8)
 
@@ -84,12 +84,11 @@ private struct SocialButton: View {
     var body: some View {
         Button(action: {}) {
             BrandIcon(brand: icon)
-                .frame(width: 28, height: 28)
-                .frame(width: 58, height: 58)
+                .frame(width: 25, height: 25)
+                .frame(width: 54, height: 54)
         }
         .buttonStyle(.plain)
-        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 18))
-        .glassEffectID("\(icon)", in: namespace)
+        .tideGlass(interactive: true, cornerRadius: 18)
     }
 }
 
@@ -160,8 +159,8 @@ private struct CompactButton: View {
                 .opacity(0.5)
         }
         .foregroundColor(.white)
-        .padding(.horizontal, 20)
-        .frame(height: 52)
+        .padding(.horizontal, 18)
+        .frame(height: 50)
         .background(Color(white: 0.1).opacity(0.8))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(

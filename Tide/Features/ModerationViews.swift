@@ -312,12 +312,12 @@ enum AdminSection: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .dashboard: String(localized: "admin_section_dashboard")
-        case .users: String(localized: "admin_section_users")
-        case .content: String(localized: "admin_section_content")
-        case .reports: String(localized: "admin_section_reports")
-        case .notifications: String(localized: "admin_section_notifications")
-        case .system: String(localized: "admin_section_system")
+        case .dashboard: "Панель"
+        case .users: "Пользователи"
+        case .content: "Контент"
+        case .reports: "Жалобы"
+        case .notifications: "Уведомления"
+        case .system: "Система"
         }
     }
     var symbol: String {

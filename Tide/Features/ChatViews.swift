@@ -10,34 +10,51 @@ struct ChatListView: View {
         List {
             TideConnectionBadge(state: messenger.connectionState)
                 .listRowSeparator(.hidden)
-            Picker(String(localized: "chat_filter_title"), selection: $filter) {
-                Text(String(localized: "chat_filter_all")).tag(ChatKind?.none)
+
+            Picker("Фильтр", selection: $filter) {
+                Text("Все").tag(ChatKind?.none)
                 ForEach(ChatKind.allCases) { Text($0.title).tag(Optional($0)) }
             }
             .pickerStyle(.segmented)
+            .tint(TidePalette.success)
             .listRowSeparator(.hidden)
+
             ForEach(filteredChats) { chat in
                 Button {
                     messenger.markRead(chat.id)
                     dependencies.router.push(.chat(chat.id))
-                } label: { ChatRow(chat: chat) }
-                    .buttonStyle(.plain)
-                    .swipeActions(edge: .leading) {
-                        Button { messenger.togglePin(chat.id) } label: { Label(chat.isPinned ? "Открепить" : "Закрепить", systemImage: "pin") }
-                        Button { messenger.toggleMute(chat.id) } label: { Label(chat.isMuted ? "Включить звук" : "Выключить звук", systemImage: "bell.slash") }
-                    }
-                    .swipeActions(edge: .trailing) {
-                        Button("Удалить", role: .destructive) { messenger.delete(chat.id) }
-                        Button("В архив") { messenger.archive(chat.id) }.tint(.secondary)
-                    }
+                } label: {
+                    ChatRow(chat: chat)
                 }
+                .buttonStyle(.plain)
+                .swipeActions(edge: .leading) {
+                    Button { messenger.togglePin(chat.id) } label: {
+                        Label(chat.isPinned ? "Открепить" : "Закрепить", systemImage: "pin")
+                    }
+                    .tint(TidePalette.success)
+
+                    Button { messenger.toggleMute(chat.id) } label: {
+                        Label(chat.isMuted ? "Включить звук" : "Выключить звук", systemImage: "bell.slash")
+                    }
+                    .tint(.orange)
+                }
+                .swipeActions(edge: .trailing) {
+                    Button("Удалить", role: .destructive) { messenger.delete(chat.id) }
+                    Button("В архив") { messenger.archive(chat.id) }
+                        .tint(.secondary)
+                }
+            }
         }
         .listStyle(.plain)
         .searchable(text: $messenger.query, prompt: "Чаты и сообщения")
         .refreshable { messenger.reload() }
         .navigationTitle("Чаты")
         .scrollContentBackground(.hidden)
-        .toolbar { Button { dependencies.router.sheet = .newMessage } label: { Image(systemName: "square.and.pencil") } }
+        .toolbar {
+            Button { dependencies.router.sheet = .newMessage } label: {
+                Image(systemName: "square.and.pencil")
+            }
+        }
     }
 
     private var filteredChats: [Chat] {
@@ -51,29 +68,49 @@ struct ChatRow: View {
     var body: some View {
         HStack(spacing: 12) {
             ZStack {
-                Circle().fill(TidePalette.subtle).frame(width: 54, height: 54)
-                Image(systemName: chat.avatarSymbol).font(.title2)
+                Circle()
+                    .fill(TidePalette.subtle)
+                    .frame(width: 52, height: 52)
+                Image(systemName: chat.avatarSymbol)
+                    .font(.title3)
             }
+
             VStack(alignment: .leading, spacing: 5) {
-                HStack {
-                    Text(chat.title).font(TideTypography.headline)
-                    if chat.isMuted { Image(systemName: "bell.slash.fill").font(.caption).foregroundStyle(.secondary) }
-                    if chat.isPinned { Image(systemName: "pin.fill").font(.caption).foregroundStyle(.secondary) }
+                HStack(spacing: 6) {
+                    Text(chat.title)
+                        .font(TideTypography.headline)
+                        .lineLimit(1)
+                    if chat.isMuted {
+                        Image(systemName: "bell.slash.fill")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    if chat.isPinned {
+                        Image(systemName: "pin.fill")
+                            .font(.caption)
+                            .foregroundStyle(TidePalette.success)
+                    }
                     Spacer()
                     Text(chat.lastMessage?.sentAt.formatted(date: .omitted, time: .shortened) ?? "")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
+
                 HStack {
-                    if chat.lastMessage?.attachmentKind != .none { Image(systemName: "paperclip").foregroundStyle(.secondary) }
+                    if chat.lastMessage?.attachmentKind != .none {
+                        Image(systemName: "paperclip")
+                            .foregroundStyle(.secondary)
+                    }
                     Text(chat.lastMessage?.body.isEmpty == false ? chat.lastMessage?.body ?? "" : "Вложение")
-                        .foregroundStyle(.secondary).lineLimit(1)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
                     Spacer()
                     if chat.unreadCount > 0 {
                         Text("\(chat.unreadCount)")
                             .font(.caption2.bold())
                             .padding(6)
                             .background(TidePalette.success, in: Circle())
-                            .foregroundStyle(TidePalette.inverse)
+                            .foregroundStyle(.white)
                     }
                 }
             }
@@ -94,20 +131,28 @@ struct ConversationView: View {
         if let chat = dependencies.messenger.chat(id: chatID) {
             ScrollViewReader { proxy in
                 ScrollView {
-                    LazyVStack(spacing: 8) {
+                    LazyVStack(spacing: 7) {
                         ForEach(chat.messages.filter { $0.deletedAt == nil || !$0.body.isEmpty }) { message in
-                            MessageBubble(message: message, chatID: chatID, isOutgoing: message.senderID == dependencies.session.currentUser?.id) {
+                            MessageBubble(
+                                message: message,
+                                chatID: chatID,
+                                isOutgoing: message.senderID == dependencies.session.currentUser?.id
+                            ) {
                                 replyTo = message
                             }
                             .id(message.id)
                         }
                     }
-                    .padding()
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
                 }
+                .background(chatBackdrop)
                 .defaultScrollAnchor(.bottom)
                 .safeAreaInset(edge: .bottom) { composer }
                 .onChange(of: chat.messages.count) { _, _ in
-                    if let id = chat.messages.last?.id { withAnimation { proxy.scrollTo(id, anchor: .bottom) } }
+                    if let id = chat.messages.last?.id {
+                        withAnimation { proxy.scrollTo(id, anchor: .bottom) }
+                    }
                 }
             }
             .navigationTitle(chat.title)
@@ -115,8 +160,12 @@ struct ConversationView: View {
             .toolbar(.hidden, for: .tabBar)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button { dependencies.router.push(.call(chatID, false)) } label: { Image(systemName: "phone") }
-                    Button { dependencies.router.push(.call(chatID, true)) } label: { Image(systemName: "video") }
+                    Button { dependencies.router.push(.call(chatID, false)) } label: {
+                        Image(systemName: "phone")
+                    }
+                    Button { dependencies.router.push(.call(chatID, true)) } label: {
+                        Image(systemName: "video")
+                    }
                 }
             }
             .task { dependencies.messenger.markRead(chatID) }
@@ -129,49 +178,93 @@ struct ConversationView: View {
                 }
             }
         } else {
-            EmptyStateView(symbol: "bubble.left", title: "Чат недоступен", message: "Эта беседа больше не существует.")
+            EmptyStateView(
+                symbol: "bubble.left",
+                title: "Чат недоступен",
+                message: "Эта беседа больше не существует."
+            )
         }
     }
 
+    private var chatBackdrop: some View {
+        LinearGradient(
+            colors: [
+                Color(uiColor: .systemBackground),
+                TidePalette.success.opacity(0.06),
+                Color(uiColor: .systemBackground)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
+
     private var composer: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 8) {
             if let replyTo {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Ответ на").font(.caption.bold())
-                        Text(replyTo.body).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                        Text("Ответ")
+                            .font(.caption.bold())
+                        Text(replyTo.body)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
                     }
                     Spacer()
-                    Button { self.replyTo = nil } label: { Image(systemName: "xmark.circle.fill") }
+                    Button { self.replyTo = nil } label: {
+                        Image(systemName: "xmark.circle.fill")
+                    }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 14)
                 .padding(.top, 8)
             }
+
             if let attachment {
                 ComposerMediaStrip(media: [attachment]) { media in
                     self.attachment = nil
                     Task { await MediaLibrary.shared.remove(media) }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 14)
             }
-            HStack(spacing: 10) {
+
+            HStack(spacing: 9) {
                 PhotosPicker(selection: $selectedItem, matching: .any(of: [.images, .videos])) {
-                    Image(systemName: "plus.circle.fill").font(.title2)
+                    Image(systemName: "plus")
+                        .font(.system(size: 17, weight: .semibold))
+                        .frame(width: 34, height: 34)
+                        .foregroundStyle(TidePalette.success)
+                        .tideGlass(interactive: true, cornerRadius: 17, tint: TidePalette.success.opacity(0.08))
                 }
+
                 TextField("Сообщение", text: $draft, axis: .vertical)
                     .lineLimit(1...5)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 13)
                     .padding(.vertical, 9)
-                    .background(TidePalette.subtle, in: RoundedRectangle(cornerRadius: 18))
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .stroke(TidePalette.separator, lineWidth: 0.6)
+                    }
+
                 Button(action: send) {
-                    Image(systemName: draft.isEmpty && attachment == nil ? "mic.fill" : "arrow.up.circle.fill").font(.title2)
+                    Image(systemName: draft.isEmpty && attachment == nil ? "mic.fill" : "arrow.up")
+                        .font(.system(size: 17, weight: .bold))
+                        .frame(width: 34, height: 34)
+                        .foregroundStyle(.white)
+                        .background(canSend ? TidePalette.success : .secondary.opacity(0.45), in: Circle())
                 }
-                .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && attachment == nil)
+                .disabled(!canSend)
             }
-            .padding(.horizontal)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 12)
+            .padding(.bottom, 9)
         }
+        .padding(.top, 8)
         .background(.bar)
+    }
+
+    private var canSend: Bool {
+        !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || attachment != nil
     }
 
     private func send() {
@@ -205,11 +298,14 @@ struct MessageBubble: View {
     var body: some View {
         HStack {
             if isOutgoing { Spacer(minLength: 52) }
+
             VStack(alignment: .leading, spacing: 6) {
                 if message.replyToMessageID != nil {
-                Label("Ответ", systemImage: "arrowshape.turn.up.left.fill")
-                        .font(.caption2).foregroundStyle(.secondary)
+                    Label("Ответ", systemImage: "arrowshape.turn.up.left.fill")
+                        .font(.caption2)
+                        .foregroundStyle(isOutgoing ? .white.opacity(0.72) : .secondary)
                 }
+
                 if message.attachmentKind != .none, let url = message.attachmentURL {
                     PostMediaCell(media: MediaAttachment(
                         id: message.id,
@@ -218,28 +314,41 @@ struct MessageBubble: View {
                         aspectRatio: 1.4
                     ))
                     .frame(maxWidth: 250, minHeight: 140, maxHeight: 220)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
-                if !message.body.isEmpty { Text(message.body) }
+
+                if !message.body.isEmpty {
+                    Text(message.body)
+                        .font(.system(size: 16, weight: .regular, design: .rounded))
+                }
+
                 HStack(spacing: 4) {
                     if message.isEdited { Text("изменено") }
                     Text(message.sentAt.formatted(date: .omitted, time: .shortened))
                     if isOutgoing { deliverySymbol }
                 }
-                .font(.caption2).foregroundStyle(.secondary)
+                .font(.caption2)
+                .foregroundStyle(isOutgoing ? .white.opacity(0.68) : .secondary)
+
                 if let reaction = message.reaction {
-                    Text(reaction).padding(5).background(TidePalette.paper, in: Circle()).offset(y: 12)
+                    Text(reaction)
+                        .padding(5)
+                        .background(.regularMaterial, in: Circle())
+                        .offset(y: 12)
                 }
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 13)
             .padding(.vertical, 9)
-            .background(isOutgoing ? TidePalette.ink : TidePalette.subtle, in: RoundedRectangle(cornerRadius: 18))
-            .foregroundStyle(isOutgoing ? TidePalette.inverse : TidePalette.ink)
+            .background(bubbleBackground)
+            .foregroundStyle(isOutgoing ? .white : TidePalette.ink)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             .contextMenu {
                 Button("Ответить", systemImage: "arrowshape.turn.up.left", action: reply)
                 Menu("Реакция") {
-                    ForEach(["❤", "🔥", "😂", "😮", "😢", "👏"], id: \.self) { reaction in
-                        Button(reaction) { dependencies.messenger.react(reaction, messageID: message.id, chatID: chatID) }
+                    ForEach(["❤️", "🔥", "😂", "😮", "😢", "👏"], id: \.self) { reaction in
+                        Button(reaction) {
+                            dependencies.messenger.react(reaction, messageID: message.id, chatID: chatID)
+                        }
                     }
                 }
                 Button("Пожаловаться", systemImage: "exclamationmark.bubble", role: .destructive) {
@@ -251,8 +360,13 @@ struct MessageBubble: View {
                     }
                 }
             }
+
             if !isOutgoing { Spacer(minLength: 52) }
         }
+    }
+
+    private var bubbleBackground: some ShapeStyle {
+        isOutgoing ? AnyShapeStyle(TidePalette.success.gradient) : AnyShapeStyle(.regularMaterial)
     }
 
     @ViewBuilder
@@ -275,11 +389,18 @@ struct NewMessageView: View {
     var body: some View {
         NavigationStack {
             List(filteredUsers) { user in
-                Button { createChat(with: user) } label: { UserRow(user: user) }.buttonStyle(.plain)
+                Button { createChat(with: user) } label: {
+                    UserRow(user: user)
+                }
+                .buttonStyle(.plain)
             }
             .searchable(text: $query, prompt: "Имя или ник")
             .navigationTitle("Новое сообщение")
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } } }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Отмена") { dismiss() }
+                }
+            }
         }
     }
 
@@ -311,23 +432,33 @@ struct CallView: View {
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             ZStack {
-                TidePalette.ink.ignoresSafeArea()
+                Color.black.ignoresSafeArea()
                 VStack(spacing: 28) {
                     Spacer()
                     if let chat = dependencies.messenger.chat(id: chatID) {
                         ZStack {
-                            Circle().fill(.white.opacity(0.12)).frame(width: 132, height: 132)
-                            Image(systemName: chat.avatarSymbol).font(.system(size: 52)).foregroundStyle(.white)
+                            Circle()
+                                .fill(.white.opacity(0.12))
+                                .frame(width: 132, height: 132)
+                            Image(systemName: chat.avatarSymbol)
+                                .font(.system(size: 52))
+                                .foregroundStyle(.white)
                         }
-                        Text(chat.title).font(.largeTitle.bold()).foregroundStyle(.white)
+                        Text(chat.title)
+                            .font(.largeTitle.bold())
+                            .foregroundStyle(.white)
                     }
-                    Text(duration(from: startedAt, to: context.date)).font(.title3.monospacedDigit()).foregroundStyle(.white.opacity(0.7))
+                    Text(duration(from: startedAt, to: context.date))
+                        .font(.title3.monospacedDigit())
+                        .foregroundStyle(.white.opacity(0.7))
                     Spacer()
-                    HStack(spacing: 20) {
+                    HStack(spacing: 16) {
                         callButton(isMuted ? "mic.slash.fill" : "mic.fill", active: isMuted) { isMuted.toggle() }
-                        if isVideo { callButton(cameraEnabled ? "video.fill" : "video.slash.fill", active: !cameraEnabled) { cameraEnabled.toggle() } }
+                        if isVideo {
+                            callButton(cameraEnabled ? "video.fill" : "video.slash.fill", active: !cameraEnabled) { cameraEnabled.toggle() }
+                        }
                         callButton(speakerEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill", active: !speakerEnabled) { speakerEnabled.toggle() }
-                        callButton("phone.down.fill", color: .red) { dismiss() }
+                        callButton("phone.down.fill", color: TidePalette.danger) { dismiss() }
                     }
                     .padding(.bottom, 38)
                 }
@@ -339,8 +470,11 @@ struct CallView: View {
 
     private func callButton(_ symbol: String, active: Bool = false, color: Color = .white.opacity(0.16), action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image(systemName: symbol).font(.title2).foregroundStyle(.white).frame(width: 62, height: 62)
-                .background(active ? .white.opacity(0.35) : color, in: Circle())
+            Image(systemName: symbol)
+                .font(.title2)
+                .foregroundStyle(.white)
+                .frame(width: 58, height: 58)
+                .background(active ? TidePalette.success.opacity(0.7) : color, in: Circle())
         }
     }
 

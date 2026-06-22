@@ -141,7 +141,7 @@ final class SessionStore {
         defer { isWorking = false }
         let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !normalizedEmail.isEmpty else {
-            errorMessage = String(localized: "auth_error_google_email")
+            errorMessage = "Введите почту Google."
             return
         }
         let account = "auth.google.\(normalizedEmail)"
@@ -832,9 +832,9 @@ final class PreferencesStore {
 
         var title: String {
             switch self {
-            case .system: String(localized: "theme_system")
-            case .light: String(localized: "theme_light")
-            case .dark: String(localized: "theme_dark")
+            case .system: "Системная"
+            case .light: "Светлая"
+            case .dark: "Тёмная"
             }
         }
     }
@@ -851,12 +851,12 @@ final class PreferencesStore {
 
         var title: String {
             switch self {
-            case .automatic: String(localized: "backdrop_automatic")
-            case .black: String(localized: "backdrop_black")
-            case .white: String(localized: "backdrop_white")
-            case .authImage: String(localized: "backdrop_auth_image")
-            case .image: String(localized: "backdrop_image")
-            case .video: String(localized: "backdrop_video")
+            case .automatic: "Авто"
+            case .black: "Чёрный"
+            case .white: "Белый"
+            case .authImage: "Фон входа"
+            case .image: "Изображение"
+            case .video: "Видео"
             }
         }
     }

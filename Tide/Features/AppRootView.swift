@@ -53,14 +53,21 @@ struct MainTabView: View {
     @ViewBuilder
     private func tabRoot(_ tab: AppTab) -> some View {
         switch tab {
-        case .home: FeedView()
-        case .chats: ChatListView()
-        case .notifications: NotificationsView()
+        case .home:
+            FeedView()
+        case .chats:
+            ChatListView()
+        case .notifications:
+            NotificationsView()
         case .profile:
             if let user = dependencies.session.currentUser {
                 ProfileView(user: user)
             } else {
-                EmptyStateView(symbol: "person.crop.circle", title: "profile_empty_title", message: "profile_empty_message")
+                EmptyStateView(
+                    symbol: "person.crop.circle",
+                    title: "Профиль не выбран",
+                    message: "Войдите в аккаунт, чтобы продолжить."
+                )
             }
         }
     }
