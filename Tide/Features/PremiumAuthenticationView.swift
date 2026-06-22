@@ -55,24 +55,68 @@ struct PremiumAuthenticationView: View {
             AuthChromeLogo(size: 86)
                 .padding(.bottom, 24)
 
-            Text("??????? ?????????????")
-                            .font(.caption.weight(.medium))
-                    }
-                    .foregroundStyle(.white.opacity(0.48))
-                    .padding(.bottom, 34)
+            Text("Начать беседу")
+                .font(.system(size: 42, weight: .black, design: .rounded))
+                .foregroundStyle(.white)
+                .minimumScaleFactor(0.78)
+                .lineLimit(1)
+
+            Spacer()
+
+            HStack(spacing: 28) {
+                AuthSocialGlassButton(kind: .google, svgName: "google", shape: .circle) {
+                    showProviderSheet = true
+                }
+                AppleAuthGlassButton(svgName: "apple", shape: .circle, completion: handleAppleSignIn)
+                AuthCircleIconButton(systemImage: "envelope") {
+                    showEmail()
                 }
             }
-            .padding(.horizontal, 28)
-        }
-        .preferredColorScheme(.dark)
-        .ignoresSafeArea()
-        .onAppear {
-            let user = dependencies.session.currentUser
-            let parts = (user?.name ?? "").split(separator: " ", maxSplits: 1).map(String.init)
-            firstName = parts.first ?? ""
-            lastName = parts.dropFirst().first ?? ""
-            username = user?.username ?? ""
-            focusedField = .firstName
+
+            AuthDivider(title: "или")
+                .padding(.top, 32)
+
+            Button {
+                setPlaceholder("Вход по телефону пока работает как заглушка.")
+            } label: {
+                HStack(spacing: 14) {
+                    Image(systemName: "phone")
+                        .font(.system(size: 24, weight: .heavy))
+                    Text("Продолжить с телефоном")
+                        .font(.system(size: 25, weight: .black, design: .rounded))
+                }
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .frame(height: 72)
+                .background(.white, in: Capsule())
+            }
+            .padding(.top, 26)
+
+            Text("Продолжая, ты соглашаешься с нашими\nУсловиями, Политикой конфиденциальности и\nПолитикой использования файлов cookie.")
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white.opacity(0.42))
+                .lineSpacing(3)
+                .padding(.top, 30)
+
+            Button {
+                showUsername()
+            } label: {
+                HStack(spacing: 16) {
+                    Image(systemName: "at")
+                    Text("Войти с именем пользователя")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                }
+                .font(.system(size: 22, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white.opacity(0.46))
+                .padding(.horizontal, 28)
+                .frame(maxWidth: .infinity)
+                .frame(height: 86)
+                .background(Color.white.opacity(0.04))
+            }
+            .padding(.horizontal, -28)
+            .padding(.top, 36)
         }
     }
 
