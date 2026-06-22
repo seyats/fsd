@@ -917,12 +917,31 @@ final class PreferencesStore {
         }
     }
 
+    enum GalleryBackdropKind: String, CaseIterable, Identifiable {
+        case none
+        case image
+        case video
+
+        var id: String { rawValue }
+
+        var title: String {
+            switch self {
+            case .none: "Нет"
+            case .image: "Фото"
+            case .video: "Видео"
+            }
+        }
+    }
+
     private let defaults: UserDefaults
     var theme: Theme { didSet { defaults.set(theme.rawValue, forKey: "theme") } }
     var backdropStyle: BackdropStyle { didSet { defaults.set(backdropStyle.rawValue, forKey: "backdropStyle") } }
     var backdropResourceName: String { didSet { defaults.set(backdropResourceName, forKey: "backdropResourceName") } }
     var backdropVideoURLString: String { didSet { defaults.set(backdropVideoURLString, forKey: "backdropVideoURLString") } }
     var backdropOpacity: Double { didSet { defaults.set(backdropOpacity, forKey: "backdropOpacity") } }
+    var galleryBackdropURLString: String { didSet { defaults.set(galleryBackdropURLString, forKey: "galleryBackdropURLString") } }
+    var galleryBackdropKind: GalleryBackdropKind { didSet { defaults.set(galleryBackdropKind.rawValue, forKey: "galleryBackdropKind") } }
+    var galleryBackdropOpacity: Double { didSet { defaults.set(galleryBackdropOpacity, forKey: "galleryBackdropOpacity") } }
     var authBackdropResourceName: String { didSet { defaults.set(authBackdropResourceName, forKey: "authBackdropResourceName") } }
     var brandLogoResourceName: String { didSet { defaults.set(brandLogoResourceName, forKey: "brandLogoResourceName") } }
     var notificationsEnabled: Bool { didSet { defaults.set(notificationsEnabled, forKey: "notificationsEnabled") } }
@@ -938,6 +957,9 @@ final class PreferencesStore {
         backdropResourceName = defaults.string(forKey: "backdropResourceName") ?? "AppBackdrop"
         backdropVideoURLString = defaults.string(forKey: "backdropVideoURLString") ?? ""
         backdropOpacity = defaults.object(forKey: "backdropOpacity") as? Double ?? 1
+        galleryBackdropURLString = defaults.string(forKey: "galleryBackdropURLString") ?? ""
+        galleryBackdropKind = GalleryBackdropKind(rawValue: defaults.string(forKey: "galleryBackdropKind") ?? "none") ?? .none
+        galleryBackdropOpacity = defaults.object(forKey: "galleryBackdropOpacity") as? Double ?? 1
         authBackdropResourceName = defaults.string(forKey: "authBackdropResourceName") ?? "AuthBackground"
         brandLogoResourceName = defaults.string(forKey: "brandLogoResourceName") ?? "AppLogo"
         notificationsEnabled = defaults.object(forKey: "notificationsEnabled") as? Bool ?? true
@@ -963,6 +985,26 @@ final class PreferencesStore {
                 videoURLString: "",
                 opacity: 1
             )
+        }
+        if !galleryBackdropURLString.isEmpty {
+            switch galleryBackdropKind {
+            case .image:
+                return TideBackdropConfiguration(
+                    style: .image,
+                    resourceName: galleryBackdropURLString,
+                    videoURLString: "",
+                    opacity: galleryBackdropOpacity
+                )
+            case .video:
+                return TideBackdropConfiguration(
+                    style: .video,
+                    resourceName: "",
+                    videoURLString: galleryBackdropURLString,
+                    opacity: galleryBackdropOpacity
+                )
+            case .none:
+                break
+            }
         }
         let style: TideBackdropConfiguration.Style = switch backdropStyle {
         case .automatic: .automatic

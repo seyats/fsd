@@ -265,7 +265,15 @@ struct MediaViewerView: View {
 
             VStack {
                 HStack {
-                    TideGlassIconButton(symbol: "xmark", tint: .white, size: 42) { dismiss() }
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 34, weight: .semibold))
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundStyle(.white)
+                            .frame(width: 54, height: 54)
+                            .contentShape(Circle())
+                    }
+                    .buttonStyle(.plain)
                     Spacer()
                     if let item = media[safe: index], let url = item.url {
                         ShareLink(item: url) {
@@ -290,6 +298,8 @@ struct MediaViewerView: View {
                 .padding(.top, 18)
                 Spacer()
             }
+            .zIndex(10)
+            .allowsHitTesting(true)
         }
         .alert("Медиа", isPresented: Binding(get: { alertText != nil }, set: { if !$0 { alertText = nil } })) {
             Button("ОК", role: .cancel) {}
@@ -334,7 +344,7 @@ private struct MediaViewerPage: View {
     @State private var scale: CGFloat = 1
     @State private var offset: CGSize = .zero
     @State private var player: AVPlayer?
-    @State private var muted = true
+    @State private var muted = false
     @State private var playing = true
 
     var body: some View {

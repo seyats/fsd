@@ -126,7 +126,6 @@ struct PostCard: View {
     @Environment(AppDependencies.self) private var dependencies
     let post: Post
     var mode: Mode = .feed
-    @State private var selectedMedia: SelectedPostMedia?
 
     enum Mode {
         case feed
@@ -157,11 +156,6 @@ struct PostCard: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                     .onTapGesture { openPostIfNeeded() }
-                if !post.media.isEmpty {
-                    PostMediaGrid(media: post.media) { index in
-                        selectedMedia = SelectedPostMedia(index: index)
-                    }
-                }
                 if let location = post.location {
                     Label(location, systemImage: "location.fill").font(.caption).foregroundStyle(.secondary)
                 }
@@ -171,9 +165,6 @@ struct PostCard: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .accessibilityElement(children: .contain)
-        .fullScreenCover(item: $selectedMedia) { item in
-            MediaViewerView(media: post.media, index: item.index)
-        }
     }
 
     private func openPostIfNeeded() {
@@ -182,11 +173,6 @@ struct PostCard: View {
             dependencies.router.push(.post(post.id))
         }
     }
-}
-
-private struct SelectedPostMedia: Identifiable {
-    let id = UUID()
-    let index: Int
 }
 
 struct PostActions: View {
@@ -242,10 +228,7 @@ struct ComposerView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var bodyText = ""
     @State private var visibility = PostVisibility.everyone
-    @State private var selectedItems: [PhotosPickerItem] = []
-    @State private var selectedMedia: [ComposerMedia] = []
     @State private var location = ""
-    @State private var isImporting = false
 
     var body: some View {
         NavigationStack {
@@ -276,21 +259,13 @@ struct ComposerView: View {
                                 .frame(minHeight: 160)
                                 .scrollContentBackground(.hidden)
                         }
-                        if !selectedMedia.isEmpty { ComposerMediaStrip(media: selectedMedia, remove: removeMedia) }
                         HStack(spacing: 10) {
-                            actionTile(symbol: "photo.on.rectangle", title: "Медиа")
                             actionTile(symbol: "location.fill", title: "Локация")
                             actionTile(symbol: "clock.badge.checkmark", title: "Запланировать")
                         }
                     }
                 } header: {
                     EmptyView()
-                }
-                Section {
-                    PhotosPicker(selection: $selectedItems, maxSelectionCount: 10, matching: .any(of: [.images, .videos])) {
-                        Label("Добавить медиа", systemImage: "photo.on.rectangle")
-                    }
-                    if isImporting { ProgressView("Импорт медиа") }
                 }
                 Picker("Видимость", selection: $visibility) {
                     ForEach(PostVisibility.allCases) { Text($0.title).tag($0) }
@@ -303,17 +278,10 @@ struct ComposerView: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Опубликовать", action: publish)
-                        .disabled(bodyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && selectedMedia.isEmpty)
+                        .disabled(bodyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
             .task { restoreDraft() }
-            .onChange(of: selectedItems) { _, items in
-                Task {
-                    isImporting = true
-                    defer { isImporting = false }
-                    if let imported = try? await MediaLibrary.shared.importItems(items) { selectedMedia = imported }
-                }
-            }
             .onDisappear { saveDraftIfNeeded() }
         }
     }
@@ -332,11 +300,9 @@ struct ComposerView: View {
 
     private func publish() {
         guard let user = dependencies.session.currentUser else { return }
-        let attachments = selectedMedia.map { MediaAttachment(id: $0.id, kind: $0.kind, url: $0.url, aspectRatio: $0.aspectRatio) }
-        dependencies.social.createPost(body: bodyText, visibility: visibility, author: user, media: attachments, location: location.isEmpty ? nil : location)
+        dependencies.social.createPost(body: bodyText, visibility: visibility, author: user, media: [], location: location.isEmpty ? nil : location)
         if let draft = dependencies.database.postDraft(ownerID: user.id) { dependencies.database.deleteDraft(draft) }
         bodyText = ""
-        selectedMedia = []
         dismiss()
     }
 
@@ -349,13 +315,8 @@ struct ComposerView: View {
 
     private func saveDraftIfNeeded() {
         guard let user = dependencies.session.currentUser,
-              !bodyText.isEmpty || !selectedMedia.isEmpty else { return }
-        dependencies.database.saveDraft(ownerID: user.id, text: bodyText, visibility: visibility, mediaURLs: selectedMedia.map(\.url))
-    }
-
-    private func removeMedia(_ media: ComposerMedia) {
-        selectedMedia.removeAll { $0.id == media.id }
-        Task { await MediaLibrary.shared.remove(media) }
+              !bodyText.isEmpty else { return }
+        dependencies.database.saveDraft(ownerID: user.id, text: bodyText, visibility: visibility, mediaURLs: [])
     }
 }
 
@@ -403,7 +364,13 @@ struct PostDetailView: View {
 
     private var topBar: some View {
         HStack {
-            TideGlassIconButton(symbol: "chevron.left", size: 38) { dismiss() }
+            Button { dismiss() } label: {
+                Image(systemName: "chevron.left.circle.fill")
+                    .font(.system(size: 34, weight: .semibold))
+                    .symbolRenderingMode(.hierarchical)
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
             Spacer()
             Text("Пост")
                 .font(.system(size: 15, weight: .semibold))
@@ -426,9 +393,7 @@ struct PostDetailView: View {
                             UserRow(user: comment.author)
                             Text(comment.body)
                         }
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 14)
-                        .background(AuthGlassBackground(cornerRadius: 18, interactive: false))
+                        .padding(.vertical, 10)
                     }
                 }
             }
@@ -443,25 +408,20 @@ struct PostDetailView: View {
                 .textInputAutocapitalization(.sentences)
                 .autocorrectionDisabled(false)
                 .tint(.primary)
-                .padding(.vertical, 12)
+                .padding(.vertical, 10)
+                .padding(.leading, 14)
             Button(action: sendReply) {
-                Image(systemName: "arrow.up")
+                Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 16, weight: .black))
                     .foregroundStyle(.primary)
-                    .frame(width: 36, height: 36)
-                    .background(.ultraThinMaterial, in: Circle())
-                    .overlay(Circle().stroke(TidePalette.separator, lineWidth: 0.6))
+                    .frame(width: 38, height: 38)
             }
-                .disabled(reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .buttonStyle(TideGlassButtonStyle(cornerRadius: 18, minHeight: 36))
+            .disabled(reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .buttonStyle(.plain)
+            .opacity(reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.35 : 1)
+            .padding(.trailing, 8)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
-        .background(AuthGlassBackground(cornerRadius: 20, interactive: true))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(.white.opacity(0.12), lineWidth: 0.5)
-        )
+        .background(.regularMaterial, in: Capsule())
         .padding(.horizontal, 16)
         .padding(.bottom, 10)
     }

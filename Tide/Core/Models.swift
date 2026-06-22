@@ -308,8 +308,6 @@ enum AppTab: String, CaseIterable, Identifiable {
 enum AppRoute: Hashable {
     case post(UUID)
     case profile(User)
-    case sharedMedia(User)
-    case nickname(User)
     case chat(UUID)
     case settings
     case stories(UUID)

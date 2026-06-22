@@ -42,6 +42,7 @@ final class LocalDatabase {
         context.autosaveEnabled = true
         bootstrapIfNeeded()
         purgeLegacyDemoDataIfNeeded()
+        purgePostMediaIfNeeded()
     }
 
     func bootstrapIfNeeded() {
@@ -70,6 +71,24 @@ final class LocalDatabase {
                 deleteAllContent()
                 defaults.set(true, forKey: "tide.purgedLegacyDemoData")
             }
+        } catch {
+            lastError = error.localizedDescription
+        }
+    }
+
+    func purgePostMediaIfNeeded() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: "tide.purgedPostMedia") else { return }
+        let postIDs = Set(fetch(PostRecord.self).map(\.id))
+        fetch(MediaRecord.self)
+            .filter { postIDs.contains($0.ownerID) }
+            .forEach(context.delete)
+        fetch(DraftRecord.self)
+            .filter { $0.kind == "post" && !$0.mediaURLStrings.isEmpty }
+            .forEach { $0.mediaURLStrings = [] }
+        do {
+            try save()
+            defaults.set(true, forKey: "tide.purgedPostMedia")
         } catch {
             lastError = error.localizedDescription
         }

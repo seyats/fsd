@@ -88,8 +88,6 @@ struct MainTabView: View {
         switch route {
         case .post(let id): PostDetailView(postID: id)
         case .profile(let user): ProfileView(user: user)
-        case .sharedMedia(let user): SharedMediaView(user: user)
-        case .nickname(let user): NicknameView(user: user)
         case .chat(let id): ConversationView(chatID: id)
         case .settings: SettingsView()
         case .stories(let id): StoryViewer(storyID: id)

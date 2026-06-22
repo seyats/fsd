@@ -47,7 +47,14 @@ struct TideBackdropView: View {
 
     @ViewBuilder
     private var backdropImage: some View {
-        if let image = UIImage(named: configuration.resourceName) {
+        if let url = URL(string: configuration.resourceName),
+           url.isFileURL,
+           let image = UIImage(contentsOfFile: url.path) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+        } else if let image = UIImage(named: configuration.resourceName) {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
