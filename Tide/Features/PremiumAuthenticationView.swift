@@ -120,6 +120,299 @@ struct PremiumAuthenticationView: View {
         }
     }
 
+    private var usernameScreen: some View {
+        VStack(spacing: 0) {
+            authTopBar(trailing: "Утеряно имя пользователя")
+                .padding(.top, 64)
+
+            VStack(alignment: .leading, spacing: 42) {
+                Text("Введи имя\nпользователя")
+                    .font(.system(size: 48, weight: .black, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineSpacing(10)
+
+                HStack(spacing: 18) {
+                    Text("@")
+                        .font(.system(size: 46, weight: .black, design: .rounded))
+                        .foregroundStyle(.white)
+                    TextField("никнейм", text: $identifier)
+                        .font(.system(size: 42, weight: .black, design: .rounded))
+                        .foregroundStyle(.white)
+                        .tint(.white)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .focused($focusedField, equals: .identifier)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 72)
+
+            Spacer()
+
+            Button(action: submitUsername) {
+                Text("Продолжить")
+                    .font(.system(size: 27, weight: .black, design: .rounded))
+                    .foregroundStyle(canContinueUsername ? .black : .white.opacity(0.36))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 72)
+                    .background(canContinueUsername ? .white : .white.opacity(0.14), in: Capsule())
+            }
+            .disabled(!canContinueUsername || isLoading)
+            .padding(.bottom, 42)
+        }
+    }
+
+    private var emailScreen: some View {
+        VStack(spacing: 0) {
+            authTopBar(trailing: "Указать номер телефона")
+                .padding(.top, 64)
+
+            VStack(alignment: .leading, spacing: 24) {
+                Text("Укажите свой\nадрес эл. почты")
+                    .font(.system(size: 46, weight: .black, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineSpacing(10)
+
+                Text("Мы отправим тебе код подтверждения")
+                    .font(.system(size: 22, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.42))
+
+                TextField("почта@пример.ру", text: $email)
+                    .font(.system(size: 42, weight: .black, design: .rounded))
+                    .foregroundStyle(.white)
+                    .tint(.white)
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .focused($focusedField, equals: .email)
+                    .padding(.top, 12)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 72)
+
+            Spacer()
+
+            Button(action: submitEmail) {
+                Text("Продолжить")
+                    .font(.system(size: 27, weight: .black, design: .rounded))
+                    .foregroundStyle(canContinueEmail ? .black : .white.opacity(0.36))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 72)
+                    .background(canContinueEmail ? .white : .white.opacity(0.14), in: Capsule())
+            }
+            .disabled(!canContinueEmail || isLoading)
+
+            Text("Продолжая, ты соглашаешься получать\nслужебные уведомления об аккаунте.")
+                .font(.system(size: 19, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white.opacity(0.42))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 24)
+                .padding(.bottom, 42)
+        }
+    }
+
+    private var providerSheet: some View {
+        VStack(spacing: 20) {
+            Text("Войди в свою учётную запись")
+                .font(.system(size: 26, weight: .black, design: .rounded))
+                .foregroundStyle(.white)
+                .padding(.top, 28)
+
+            AuthProviderPill(imageName: "GoogleLogo", title: "Продолжить с Google") {
+                setPlaceholder("Вход через Google пока работает как заглушка.")
+            }
+            AuthProviderPill(imageName: "AppleLogo", title: "Продолжить с Apple") {
+                setPlaceholder("Вход через Apple доступен через кнопку Apple на главном экране.")
+            }
+            AuthProviderPill(systemImage: "envelope", title: "Продолжить с электронной почтой") {
+                showProviderSheet = false
+                showEmail()
+            }
+            AuthProviderPill(systemImage: "phone", title: "Продолжить с телефоном") {
+                setPlaceholder("Вход по телефону пока работает как заглушка.")
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 34)
+        .background(Color.black.ignoresSafeArea())
+    }
+
+    private func authTopBar(trailing: String) -> some View {
+        HStack {
+            Button {
+                withAnimation(.smooth(duration: 0.38)) { stage = .landing }
+            } label: {
+                Image(systemName: "arrow.left")
+                    .font(.system(size: 34, weight: .bold))
+                    .foregroundStyle(.white)
+            }
+            Spacer()
+            Button(trailing) {
+                setPlaceholder("Восстановление аккаунта появится позже.")
+            }
+            .font(.system(size: 24, weight: .black, design: .rounded))
+            .foregroundStyle(.white)
+        }
+    }
+
+    private var canContinueUsername: Bool {
+        !identifier.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var canContinueEmail: Bool {
+        email.contains("@") && email.contains(".")
+    }
+
+    private func showUsername() {
+        withAnimation(.smooth(duration: 0.38)) {
+            stage = .username
+        }
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(200))
+            focusedField = .identifier
+        }
+    }
+
+    private func showEmail() {
+        withAnimation(.smooth(duration: 0.38)) {
+            stage = .email
+        }
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(200))
+            focusedField = .email
+        }
+    }
+
+    private func submitUsername() {
+        guard canContinueUsername else { return }
+        Task {
+            isLoading = true
+            defer { isLoading = false }
+            await dependencies.session.signInIdentifier(identifier, password: "Sy3uki90.")
+        }
+    }
+
+    private func submitEmail() {
+        guard canContinueEmail else { return }
+        Task {
+            isLoading = true
+            defer { isLoading = false }
+            await dependencies.session.signInEmail(email: email, password: "TidePreview2026", createsAccount: true)
+        }
+    }
+
+    private func setPlaceholder(_ message: String) {
+        alertMessage = message
+    }
+
+    private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
+        Task {
+            switch result {
+            case .success(let authorization):
+                guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+                    alertMessage = "Apple не вернул данные аккаунта."
+                    return
+                }
+                let fallbackEmail = credential.email ?? credential.user + "@apple.local"
+                let name = [credential.fullName?.givenName, credential.fullName?.familyName].compactMap { $0 }.joined(separator: " ")
+                await dependencies.session.signInApple(
+                    userIdentifier: credential.user,
+                    fallbackEmail: fallbackEmail,
+                    displayName: name.isEmpty ? nil : name
+                )
+            case .failure(let error):
+                alertMessage = error.localizedDescription
+            }
+        }
+    }
+}
+
+struct AuthProfileSetupView: View {
+    @Environment(AppDependencies.self) private var dependencies
+    @FocusState private var focusedField: Field?
+    @State private var step: Step = .name
+    @State private var firstName = ""
+    @State private var lastName = ""
+    @State private var username = ""
+
+    private enum Step { case name, username }
+    private enum Field { case firstName, lastName, username }
+
+    var body: some View {
+        ZStack {
+            AuthBlackBackdrop()
+
+            VStack(spacing: 0) {
+                Spacer()
+
+                AuthChromeLogo(size: 112)
+                    .padding(.bottom, 30)
+
+                VStack(spacing: 8) {
+                    Text(step == .name ? "Заполни имя" : "Выбери имя пользователя")
+                        .font(.system(size: 30, weight: .semibold))
+                        .foregroundStyle(.white)
+                    Text(step == .name ? "Так тебя увидят в приложении." : "По нему тебя будут находить.")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.48))
+                }
+                .padding(.bottom, 30)
+
+                Group {
+                    if step == .name {
+                        VStack(spacing: 14) {
+                            AuthInputField(placeholder: "Имя", text: $firstName, icon: "person", isSecure: false, isVisible: .constant(true))
+                                .focused($focusedField, equals: .firstName)
+                            AuthInputField(placeholder: "Фамилия", text: $lastName, icon: "person.text.rectangle", isSecure: false, isVisible: .constant(true))
+                                .focused($focusedField, equals: .lastName)
+                        }
+                    } else {
+                        AuthInputField(placeholder: "Имя пользователя", text: $username, icon: "at", isSecure: false, isVisible: .constant(true))
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .focused($focusedField, equals: .username)
+                    }
+                }
+                .frame(maxWidth: 330)
+                .animation(.smooth(duration: 0.32), value: step)
+
+                Button(action: continueSetup) {
+                    Text(step == .name ? "Продолжить" : "Войти в приложение")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.black)
+                        .frame(width: 154, height: 48)
+                        .background(.white, in: Capsule())
+                        .shadow(color: .white.opacity(0.18), radius: 18, y: 8)
+                }
+                .padding(.top, 28)
+
+                Spacer()
+
+                if dependencies.session.currentUser?.isVerified == true {
+                    HStack(spacing: 8) {
+                        TideBrandLogoView(size: 18, style: .circle)
+                        Text("аккаунт верифицирован")
+                            .font(.caption.weight(.medium))
+                    }
+                    .foregroundStyle(.white.opacity(0.48))
+                    .padding(.bottom, 34)
+                }
+            }
+            .padding(.horizontal, 28)
+        }
+        .preferredColorScheme(.dark)
+        .ignoresSafeArea()
+        .onAppear {
+            let user = dependencies.session.currentUser
+            let parts = (user?.name ?? "").split(separator: " ", maxSplits: 1).map(String.init)
+            firstName = parts.first ?? ""
+            lastName = parts.dropFirst().first ?? ""
+            username = user?.username ?? ""
+            focusedField = .firstName
+        }
+    }
+
     private func continueSetup() {
         switch step {
         case .name:
@@ -361,53 +654,79 @@ struct BrandSVG: View {
     }
 }
 
-struct AuthFooter: View {
-    let prefix: String
-    let action: String
-    let tap: () -> Void
+struct AuthProviderPill: View {
+    let imageName: String?
+    let systemImage: String?
+    let title: String
+    let action: () -> Void
+
+    init(imageName: String, title: String, action: @escaping () -> Void) {
+        self.imageName = imageName
+        self.systemImage = nil
+        self.title = title
+        self.action = action
+    }
+
+    init(systemImage: String, title: String, action: @escaping () -> Void) {
+        self.imageName = nil
+        self.systemImage = systemImage
+        self.title = title
+        self.action = action
+    }
 
     var body: some View {
-        HStack(spacing: 4) {
-            Text(prefix)
-                .foregroundStyle(.white.opacity(0.42))
-            Button(action: tap) {
-                Text(action)
+        Button(action: action) {
+            HStack(spacing: 14) {
+                if let imageName {
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                } else if let systemImage {
+                    Image(systemName: systemImage)
+                        .font(.system(size: 19, weight: .semibold))
+                }
+                Text(title)
+                    .font(.system(size: 17, weight: .semibold))
+                Spacer(minLength: 0)
             }
-            .foregroundStyle(.white.opacity(0.82))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 18)
+            .frame(maxWidth: .infinity)
+            .frame(height: 62)
+            .background(AuthGlassBackground(cornerRadius: 20, interactive: true))
         }
-        .font(.system(size: 13, weight: .medium))
+        .buttonStyle(.plain)
+    }
+}
+
+struct AuthCircleIconButton: View {
+    let systemImage: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.88))
+                .frame(width: 54, height: 54)
+                .background(AuthGlassBackground(cornerRadius: 27, interactive: true))
+        }
+        .buttonStyle(.plain)
     }
 }
 
 struct AuthGlassBackground: View {
     let cornerRadius: CGFloat
-    var interactive = false
+    var interactive: Bool = false
 
     var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(.white.opacity(0.045))
+            .fill(.white.opacity(interactive ? 0.08 : 0.06))
             .overlay {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(
-                        LinearGradient(colors: [.white.opacity(0.26), .white.opacity(0.06)], startPoint: .topLeading, endPoint: .bottomTrailing),
-                        lineWidth: 0.7
-                    )
+                    .stroke(.white.opacity(interactive ? 0.18 : 0.12), lineWidth: 0.8)
             }
-            .shadow(color: .black.opacity(0.35), radius: 18, y: 10)
-            .authGlass(cornerRadius: cornerRadius, interactive: interactive)
-    }
-}
-
-extension View {
-    @ViewBuilder
-    func authGlass(cornerRadius: CGFloat, interactive: Bool) -> some View {
-        if #available(iOS 26, *) {
-            self.glassEffect(
-                interactive ? .regular.tint(.white.opacity(0.05)).interactive() : .regular.tint(.white.opacity(0.05)),
-                in: .rect(cornerRadius: cornerRadius)
-            )
-        } else {
-            self.background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        }
+            .background(.black.opacity(0.18))
     }
 }
