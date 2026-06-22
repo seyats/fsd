@@ -58,7 +58,7 @@ struct PremiumAuthenticationView: View {
                 AuthCircleIconButton(systemImage: "envelope") { showEmail() }
             }
             AuthDivider(title: "\u{0438}\u{043b}\u{0438}").padding(.top, 32)
-            Button { setPlaceholder("\u{0412}\u{0445}\u{043e}\u{0434} \u{043f}\u{043e} \u{0442}\u{0435}\u{043b}\u{0435}\u{0444}\u{043e}\u{043d}\u{0443} \u{043f}\u{043e}\u{043a}\u{0430} \u{0440}\u{0430}\u{0431}\u{043e}\u{0442}\u{0430}\u{0435}\u{0442 \u{043a}\u{0430}\u{043a} \u{0437}\u{0430}\u{0433}\u{043b}\u{0443}\u{0448}\u{043a}\u{0430}.") } label: {
+            Button { setPlaceholder("\u{0412}\u{0445}\u{043e}\u{0434} \u{043f}\u{043e} \u{0442}\u{0435}\u{043b}\u{0435}\u{0444}\u{043e}\u{043d}\u{0443} \u{043f}\u{043e}\u{043a}\u{0430} \u{0440}\u{0430}\u{0431}\u{043e}\u{0442}\u{0430}\u{0435}\u{0442} \u{043a}\u{0430}\u{043a} \u{0437}\u{0430}\u{0433}\u{043b}\u{0443}\u{0448}\u{043a}\u{0430}.") } label: {
                 HStack(spacing: 14) {
                     Image(systemName: "phone").font(.system(size: 24, weight: .heavy))
                     Text("\u{041f}\u{0440}\u{043e}\u{0434}\u{043e}\u{043b}\u{0436}\u{0438}\u{0442}\u{044c} \u{0441} \u{0442}\u{0435}\u{043b}\u{0435}\u{0444}\u{043e}\u{043d}\u{043e}\u{043c}")
@@ -529,4 +529,3 @@ struct AnyShape: Shape {
     init<S: Shape>(_ shape: S) { builder = { rect in shape.path(in: rect) } }
     func path(in rect: CGRect) -> Path { builder(rect) }
 }
-
